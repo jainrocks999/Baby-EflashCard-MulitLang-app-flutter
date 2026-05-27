@@ -1,0 +1,494 @@
+import 'dart:async';
+import 'dart:math';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:eflash_multilagnuage_upgrade/core/utils/helper.dart';
+import 'package:eflash_multilagnuage_upgrade/database/db_provider.dart';
+import 'package:eflash_multilagnuage_upgrade/services/music_services.dart';
+import 'package:eflash_multilagnuage_upgrade/widgets/app_background.dart';
+import 'package:eflash_multilagnuage_upgrade/widgets/custom_snackbar.dart';
+import 'package:eflash_multilagnuage_upgrade/widgets/topbar.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
+
+class ExerciseScreen extends ConsumerStatefulWidget {
+  final String category;
+  const ExerciseScreen({super.key, required this.category});
+
+  @override
+  ConsumerState<ExerciseScreen> createState() => _ExerciseScreenState();
+}
+
+class _ExerciseScreenState extends ConsumerState<ExerciseScreen> {
+  final GlobalKey<ImageGridState> imgGridKey = GlobalKey();
+  final Set<int> _usedIndexes = {};
+  List<Map<String, dynamic>>? cachedRandomItems;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() async {
+      await ref.read(dbProvider.notifier).fetchData(category: widget.category);
+      await ref.read(dbProvider.notifier).loadSoundAndLangSettings();
+    });
+  }
+
+  void _loadNextQuestion() {
+    setState(() {
+      cachedRandomItems = null;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(dbProvider);
+
+    if (state.isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    if (state.data.isEmpty) {
+      return const Scaffold(
+        body: Center(child: Center(child: CircularProgressIndicator())),
+      );
+    }
+
+    cachedRandomItems ??= state.data.isNotEmpty
+        ? AppHelpers.getRandomItems(state.data, _usedIndexes)
+        : [];
+    final randomItems = cachedRandomItems!;
+
+    final langName = AppHelpers.getLanguageFolder(
+      randomItems[0]['language_name'],
+    );
+
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          ref.read(dbProvider.notifier).clearData();
+        }
+      },
+      child: Scaffold(
+        body: AppBackground(
+          child: Column(
+            children: [
+              const TopBar(showBackButton: true),
+
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.amber[200],
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(width: 1, color: Colors.amber),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 5,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Text(
+                  'Fun with ${randomItems[0]['category']}',
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: 14,
+                    fontFamily: 'Fredoka',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+
+              Spacer(),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                decoration: BoxDecoration(
+                  color: Color(0xffb3eafd),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    width: 2,
+                    color: Colors.white.withAlpha(150),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 5,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Text(
+                  langName == 'english'
+                      ? 'Click on ${randomItems[0]['sound'].replaceAll('.mp3', '')}?'
+                      : 'Click on ${randomItems[0]['word']}?',
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: 16,
+                    fontFamily: 'Fredoka',
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+
+              SizedBox(height: 30),
+
+              ImageGrid(
+                key: ValueKey(randomItems[0]['title']),
+                data: randomItems,
+                onCorrectAnswer: _loadNextQuestion,
+                isSoundOn: state.isSoundOn,
+              ),
+              Spacer(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ImageGrid extends StatefulWidget {
+  final dynamic data;
+  final VoidCallback onCorrectAnswer;
+  final bool isSoundOn;
+  const ImageGrid({
+    super.key,
+    required this.data,
+    required this.onCorrectAnswer,
+    required this.isSoundOn,
+  });
+
+  @override
+  State<ImageGrid> createState() => ImageGridState();
+}
+
+class ImageGridState extends State<ImageGrid> {
+  final PageController _controller = PageController();
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  late final StreamSubscription<PlayerState> _playerStateSub;
+
+  int currentIndex = 0;
+  bool isPlaying = false;
+  late List<Map<String, dynamic>> shuffledData;
+  late int correctIndex;
+
+  int? selectedIndex;
+  bool? isCorrect;
+  bool isTapLocked = false;
+
+  Future<void>? _currentTask;
+
+  @override
+  void initState() {
+    super.initState();
+    _configureAudioPlayer();
+
+    shuffledData = List.from(widget.data);
+    shuffledData.shuffle();
+
+    correctIndex = shuffledData.indexWhere(
+      (item) => item['title'] == widget.data[0]['title'],
+    );
+
+    _playerStateSub = _audioPlayer.onPlayerStateChanged.listen((state) {
+      if (!mounted) return;
+
+      if (state == PlayerState.playing) {
+        setState(() => isPlaying = true);
+      } else if (state == PlayerState.completed ||
+          state == PlayerState.stopped ||
+          state == PlayerState.paused) {
+        setState(() => isPlaying = false);
+      }
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.data.isNotEmpty) {
+        if (widget.isSoundOn) {
+          playItemAudio(widget.data[0]);
+        }
+      }
+    });
+  }
+
+  Future<void> _configureAudioPlayer() async {
+    try {
+      await _audioPlayer.setAudioContext(MusicService.effectsAudioContext);
+    } catch (e) {
+      debugPrint("Exercise audio context error: $e");
+    }
+  }
+
+  @override
+  void dispose() {
+    _playerStateSub.cancel();
+    _audioPlayer.dispose();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> playItemAudio(Map<String, dynamic> item) async {
+    // cancel previous logical task
+    _currentTask = _playInternal(item);
+    await _currentTask;
+  }
+
+  Future<void> _playInternal(Map<String, dynamic> item) async {
+    await MusicService().runWithDuckedMusic(() async {
+      try {
+        await _audioPlayer.stop();
+
+        final langName = AppHelpers.getLanguageFolder(item['language_name']);
+
+        final sound = langName == 'english'
+            ? item['sound']
+            : item['sound']?.replaceAll(' ', '_');
+
+        await _audioPlayer.play(AssetSource('helpers/clickon.mp3'));
+        try {
+          await _audioPlayer.onPlayerComplete.first.timeout(
+            const Duration(seconds: 8),
+          );
+        } catch (_) {}
+        if (!mounted) return;
+
+        if (sound != null && sound.toString().isNotEmpty) {
+          await _audioPlayer.play(AssetSource('files/$langName/$sound'));
+          try {
+            await _audioPlayer.onPlayerComplete.first.timeout(
+              const Duration(seconds: 8),
+            );
+          } catch (_) {}
+        }
+      } catch (e) {
+        debugPrint("Audio error: $e");
+      }
+    });
+  }
+
+  Future<void> onItemTap(int index) async {
+    final List correctSounds = [
+      'helpers/goodjob.mp3',
+      'helpers/beautiful.mp3',
+      'helpers/bravo.mp3',
+      'helpers/excellent.mp3',
+      'helpers/fantastic.mp3',
+      'helpers/goodanswer.mp3',
+      'helpers/great.mp3',
+      'helpers/marvelous.mp3',
+    ];
+    final List wrongSounds = [
+      "helpers/oopsie.mp3",
+      "helpers/tryagain.mp3",
+      "helpers/uhoh.mp3",
+      "helpers/youcandoit.mp3",
+    ];
+
+    if (isTapLocked || isPlaying) return;
+
+    isTapLocked = true;
+
+    final correct = index == correctIndex;
+
+    setState(() {
+      selectedIndex = index;
+      isCorrect = correct;
+    });
+
+    try {
+      await MusicService().runWithDuckedMusic(() async {
+        await _audioPlayer.stop();
+
+        if (correct) {
+          final sound = correctSounds[Random().nextInt(correctSounds.length)];
+          await _audioPlayer.play(AssetSource(sound));
+          try {
+            await _audioPlayer.onPlayerComplete.first.timeout(
+              const Duration(seconds: 8),
+            );
+          } catch (_) {}
+
+          await Future.delayed(const Duration(milliseconds: 400));
+          widget.onCorrectAnswer();
+        } else {
+          final sound = wrongSounds[Random().nextInt(wrongSounds.length)];
+
+          await _audioPlayer.play(AssetSource(sound));
+          try {
+            await _audioPlayer.onPlayerComplete.first.timeout(
+              const Duration(seconds: 8),
+            );
+          } catch (_) {}
+        }
+      });
+    } catch (e) {
+      debugPrint("Tap error: $e");
+    } finally {
+      await Future.delayed(const Duration(milliseconds: 300));
+      isTapLocked = false;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: shuffledData.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 15,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1,
+              // childAspectRatio: 0.85,
+            ),
+            itemBuilder: (context, index) {
+              String itemImg = shuffledData[index]["image"];
+
+              if (shuffledData[index]['category'] == 'Alphabet') {
+                itemImg = AppHelpers.getModifiedImgName(
+                  image: shuffledData[index]["image"],
+                  langName: shuffledData[index]["language_name"],
+                );
+              }
+              if (shuffledData[index]['category'] == 'Numbers') {
+                itemImg = AppHelpers.getModifiedImgName(
+                  image: shuffledData[index]["image"],
+                  langName: shuffledData[index]["language_name"],
+                );
+              }
+
+              return GestureDetector(
+                onTap: () => onItemTap(index),
+                child: Stack(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: selectedIndex == null
+                              ? Colors.grey.shade300
+                              : isCorrect == true
+                              ? (index == correctIndex
+                                    ? Colors.green
+                                    : Colors.grey.shade300)
+                              : (index == selectedIndex
+                                    ? Colors.red
+                                    : Colors.grey.shade300),
+                          width: 3,
+                        ),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 6,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(17),
+                        child: Image.asset(
+                          'assets/files/$itemImg',
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: double.infinity,
+                        ),
+                      ),
+                    ),
+
+                    /// Icons
+                    if (selectedIndex != null)
+                      Positioned.fill(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: isCorrect == true
+                                ? (index == correctIndex
+                                      ? Colors.green.withAlpha(81)
+                                      : Colors.transparent)
+                                : (index == selectedIndex
+                                      ? Colors.red.withAlpha(81)
+                                      : Colors.transparent),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Center(
+                            child: isCorrect == true
+                                ? (index == correctIndex
+                                      ? const Icon(
+                                          Icons.check_circle,
+                                          color: Colors.green,
+                                          size: 50,
+                                        )
+                                      : null)
+                                : (index == selectedIndex
+                                      ? const Icon(
+                                          Icons.cancel,
+                                          color: Colors.red,
+                                          size: 50,
+                                        )
+                                      : null),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+        SizedBox(height: 50),
+        ElevatedButton(
+          onPressed: () {
+            if (widget.isSoundOn) {
+              playItemAudio(widget.data[0]);
+            } else {
+              showCustomSnackBar(
+                context: context,
+                title: "Sound is Off",
+                subtitle:
+                    " Turn on sound in settings to hear the fun sounds 🎵",
+                backgroundColor: Color(0xffb3903e),
+                icon: Icons.volume_off,
+              );
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Color(0xffc7f0e5).withAlpha(135),
+            elevation: 5,
+            shadowColor: Colors.black26,
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(50),
+              side: BorderSide(color: Color(0xff5fbca4), width: 3),
+            ),
+          ),
+
+          child: Row(
+            spacing: 5,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SvgPicture.asset(
+                "assets/svgs/replay_btn.svg",
+                width: 60,
+                height: 60,
+              ),
+
+              Text(
+                'Replay',
+                style: TextStyle(
+                  color: Colors.black54,
+                  fontSize: 23,
+                  fontFamily: 'Fredoka',
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
