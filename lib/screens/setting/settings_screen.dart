@@ -76,13 +76,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       spacing: 5,
                       children: [
-                        Icon(Icons.settings, color: Color(0xff825c2f), size:ResponsiveUtils.width(context, isTablet?2:6)),
+                        Icon(Icons.settings, color: Color(0xff825c2f), size:ResponsiveUtils.width(context, isTablet?5:6)),
                         Text(
                           'Setting'.toUpperCase(),
                           style: TextStyle(
                             fontSize: ResponsiveUtils.fontSize(
                               context,
-                              isTablet ? 2 : 7.5,
+                              isTablet ? 6 : 7.5,
                             ),
                             fontFamily: "Fredoka",
                             fontWeight: FontWeight.w700,
@@ -94,7 +94,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     SizedBox(
                       height: ResponsiveUtils.height(
                         context,
-                        isTablet ? 0.2 : 0.5,
+                        isTablet ? 0.5 : 0.5,
                       ),
                     ),
                     SettingContainer(
@@ -267,12 +267,12 @@ class _RowDropdownState extends ConsumerState<_RowDropdown> {
         Row(
           spacing: 5,
           children: [
-            Icon(Icons.translate_rounded, size: 20),
+            Icon(Icons.translate_rounded, size: ResponsiveUtils.fontSize(context, isTablet ? 3.8 : 5)),
             Text(
               "Language",
               style: TextStyle(
                 // fontSize: 18,
-                fontSize: ResponsiveUtils.fontSize(context, isTablet ? 2 : 5),
+                fontSize: ResponsiveUtils.fontSize(context, isTablet ? 3.8 : 5),
                 fontFamily: 'Fredoka',
                 fontWeight: FontWeight.w600,
               ),
@@ -282,13 +282,13 @@ class _RowDropdownState extends ConsumerState<_RowDropdown> {
         DropdownButton<String>(
           value: state.language,
           underline: const SizedBox(),
-          icon: Icon(Icons.keyboard_arrow_down,size: ResponsiveUtils.width(context, isTablet?2:4.8),),
+          icon: Icon(Icons.keyboard_arrow_down,size: ResponsiveUtils.width(context, isTablet?3.5:4.8),),
           dropdownColor: Color(0xfff7cd89),
           borderRadius: BorderRadius.circular(20),
           style: TextStyle(
             color: widget.questionMode ? Colors.grey : Colors.black,
             // fontSize: 16,
-            fontSize: ResponsiveUtils.fontSize(context, isTablet ? 2 : 4.7),
+            fontSize: ResponsiveUtils.fontSize(context, isTablet ? 3.5 : 4.7),
             fontFamily: 'Fredoka',
             fontWeight: FontWeight.w500,
           ),
@@ -333,12 +333,12 @@ class _SwitchRow extends StatelessWidget {
         Row(
           spacing: 5,
           children: [
-            icon != null ? Icon(icon, size: ResponsiveUtils.width(context, isTablet?2:4.8)) : SizedBox(),
+            icon != null ? Icon(icon, size: ResponsiveUtils.width(context, isTablet?3.5:4.8)) : SizedBox(),
             Text(
               title,
               style: TextStyle(
                 // fontSize: 18,
-                fontSize: ResponsiveUtils.fontSize(context, isTablet ? 2 : 5),
+                fontSize: ResponsiveUtils.fontSize(context, isTablet ? 3.8 : 5),
                 fontFamily: 'Fredoka',
                 fontWeight: FontWeight.w600,
               ),

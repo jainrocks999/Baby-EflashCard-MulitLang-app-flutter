@@ -64,7 +64,7 @@ class HomeCards extends StatelessWidget {
                         fontFamily: "BubblegumSans",
                         fontSize: ResponsiveUtils.fontSize(
                             context,
-                            isTablet ? 2 : 7,
+                            isTablet ? 8 : 7,
                           ),
                         
                         fontWeight: FontWeight.w900,
@@ -78,7 +78,7 @@ class HomeCards extends StatelessWidget {
                         fontFamily: "BubblegumSans",
                         fontSize: ResponsiveUtils.fontSize(
                             context,
-                            isTablet ? 2 : 4.5,
+                            isTablet ? 3.5 : 4.5,
                           ),
                         color: AppColors.primaryTxt,
                       ),
@@ -93,13 +93,13 @@ class HomeCards extends StatelessWidget {
                       backgroundColor: btnBg,
                       elevation: 2,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(ResponsiveUtils.width(context, isTablet? 10:8)),
                       ),
                     ),
                     child: Icon(
                       Icons.arrow_forward_rounded,
                       color: AppColors.primaryTxt,
-                      size:ResponsiveUtils.width(context, isTablet?4:8)
+                      size:ResponsiveUtils.width(context, isTablet?7:8)
                     ),
                   ),
                 ),

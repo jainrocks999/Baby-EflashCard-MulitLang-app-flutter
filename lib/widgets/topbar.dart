@@ -23,23 +23,22 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
 
     return AppBar(
       // toolbarHeight: 75,
-      toolbarHeight: ResponsiveUtils.height(context, isTablet ? 1 : 9),
+      toolbarHeight: ResponsiveUtils.height(context, isTablet ? 9 : 9),
       backgroundColor: Colors.transparent,
       scrolledUnderElevation: 0,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       automaticallyImplyLeading: false,
-      leadingWidth: showBackButton ? 85 : null,
+      leadingWidth: showBackButton ? ResponsiveUtils.width(context, isTablet?15:20) : null,
       leading: showBackButton
           ? Padding(
               padding: const EdgeInsets.only(left: 15),
               child: IconElevatedBtn(
-                size: ResponsiveUtils.width(context, isTablet  ? 9:16),
+                size: ResponsiveUtils.width(context, isTablet  ? 14:16),
                 assetPath: 'assets/svgs/back_btn.svg',
                 onPressed: () {
                   Navigator.of(context).maybePop();
                 },
-
                 elevation: 0,
               ),
             )
@@ -47,7 +46,7 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         if (!isDetail)
           IconElevatedBtn(
-            size: ResponsiveUtils.width(context, isTablet  ? 9:17),
+            size: ResponsiveUtils.width(context, isTablet  ? 15:17),
             assetPath: 'assets/svgs/setting_btn.svg',
             onPressed: () {
               AppHelpers.showSettingModal(context);

@@ -69,7 +69,7 @@ class _PlaygroundScreenState extends ConsumerState<PlaygroundScreen> {
                   IconElevatedBtn(
                     size: ResponsiveUtils.width(
                         context,
-                        isTablet ? 10 : 20,
+                        isTablet ? 18 : 20,
                       ),
                     assetPath: 'assets/svgs/left_btn.svg',
                     onPressed: () {
@@ -100,13 +100,13 @@ class _PlaygroundScreenState extends ConsumerState<PlaygroundScreen> {
                     // size: 120,
                     size: ResponsiveUtils.width(
                         context,
-                        isTablet ? 10 : 28,
+                        isTablet ? 25 : 28,
                       ),
                   ),
                   IconElevatedBtn(
                     size: ResponsiveUtils.width(
                         context,
-                        isTablet ? 10 : 20,
+                        isTablet ? 18 : 20,
                       ),
                     assetPath: 'assets/svgs/right_btn.svg',
                     onPressed: () {
@@ -357,8 +357,8 @@ class ImageSliderState extends State<ImageSlider> {
 
         SizedBox(
           // height: 350,
-          height: ResponsiveUtils.height(context, isTablet ? 40 : 40),
-          width: ResponsiveUtils.width(context, isTablet ? 40 : 88),
+          height: ResponsiveUtils.height(context, isTablet ? 48 : 40),
+          width: ResponsiveUtils.width(context, isTablet ? 85 : 88),
           child: GestureDetector(
             onHorizontalDragStart: (_) {
               if (!widget.isSwpieOn) {
