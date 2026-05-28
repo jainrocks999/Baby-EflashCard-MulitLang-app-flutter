@@ -1,6 +1,6 @@
 // import 'dart:math';
 
-import 'package:eflash_multilagnuage_upgrade/screens/setting/settings_screen.dart';
+import 'package:baby_flash_apps/screens/setting/settings_screen.dart';
 import 'package:flutter/material.dart';
 
 class AppHelpers {

@@ -1,4 +1,4 @@
-import 'package:eflash_multilagnuage_upgrade/core/constants/app_colors.dart';
+import 'package:baby_flash_apps/core/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 

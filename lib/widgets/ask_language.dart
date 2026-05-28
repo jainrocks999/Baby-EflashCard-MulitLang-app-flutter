@@ -1,6 +1,6 @@
-import 'package:eflash_multilagnuage_upgrade/database/db_provider.dart';
-import 'package:eflash_multilagnuage_upgrade/screens/setting/settings_screen.dart';
-import 'package:eflash_multilagnuage_upgrade/services/secure_storage.dart';
+import 'package:baby_flash_apps/database/db_provider.dart';
+import 'package:baby_flash_apps/screens/setting/settings_screen.dart';
+import 'package:baby_flash_apps/services/secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -41,6 +41,8 @@ class _LanguageSelectionModalState
 
   @override
   Widget build(BuildContext context) {
+    final maxHeight = MediaQuery.sizeOf(context).height * 0.8;
+
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (didPop, result) async {
@@ -48,44 +50,59 @@ class _LanguageSelectionModalState
           await _saveLanguage();
         }
       },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        decoration: const BoxDecoration(
-          color: Color(0xFFF4C77D),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-             Text(
-              "Select Language".toUpperCase(),
-               style:  const TextStyle(
-                    fontSize: 18,
-                    fontFamily: "Fredoka",
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xff825c2f),
-                  ),
+      child: SafeArea(
+        top: false,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: maxHeight),
+          child: Container(
+            padding: EdgeInsets.only(
+              left: 20,
+              right: 20,
+              top: 16,
+              bottom: 16 + MediaQuery.viewInsetsOf(context).bottom,
             ),
-            const SizedBox(height: 16),
-
-            ...languages.map((lang) {
-              return _buildLanguageItem(
-                label: lang['label']!,
-                value: lang['value']!,
-              );
-            }),
-
-            const SizedBox(height: 16),
-
-             CommonButton(
-                    text: "Done",
-                    onPressed: ()async {
-                       await _saveLanguage();
-                      Navigator.pop(context);
-                    },
-                    backgroundColor: Color(0xff3ed043),
+            decoration: const BoxDecoration(
+              color: Color(0xFFF4C77D),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Select Language".toUpperCase(),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontFamily: "Fredoka",
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xff825c2f),
+                    ),
                   ),
-          ],
+                  const SizedBox(height: 16),
+
+                  ...languages.map((lang) {
+                    return _buildLanguageItem(
+                      label: lang['label']!,
+                      value: lang['value']!,
+                    );
+                  }),
+
+                  const SizedBox(height: 16),
+
+                  CommonButton(
+                    text: "Done",
+                    onPressed: () async {
+                      await _saveLanguage();
+                      if (!context.mounted) return;
+                      Navigator.of(context).pop();
+                    },
+                    backgroundColor: const Color(0xff3ed043),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );

@@ -1,9 +1,9 @@
-import 'package:eflash_multilagnuage_upgrade/router/route_paths.dart';
-import 'package:eflash_multilagnuage_upgrade/screens/detail/playground_screen.dart';
-import 'package:eflash_multilagnuage_upgrade/screens/exercise/exercise_screen.dart';
-import 'package:eflash_multilagnuage_upgrade/screens/home/home_screen.dart';
-import 'package:eflash_multilagnuage_upgrade/screens/setting/settings_screen.dart';
-import 'package:eflash_multilagnuage_upgrade/screens/splash/splash_screen.dart';
+import 'package:baby_flash_apps/router/route_paths.dart';
+import 'package:baby_flash_apps/screens/detail/playground_screen.dart';
+import 'package:baby_flash_apps/screens/exercise/exercise_screen.dart';
+import 'package:baby_flash_apps/screens/home/home_screen.dart';
+import 'package:baby_flash_apps/screens/setting/settings_screen.dart';
+import 'package:baby_flash_apps/screens/splash/splash_screen.dart';
 import 'package:go_router/go_router.dart';
 
 final GoRouter appRouter = GoRouter(

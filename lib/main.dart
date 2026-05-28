@@ -1,4 +1,4 @@
-import 'package:eflash_multilagnuage_upgrade/router/app_router.dart';
+import 'package:baby_flash_apps/router/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      title: 'baby FlashCard App',
+      title: 'Baby Flash Apps',
       routerConfig: appRouter,
     );
   }

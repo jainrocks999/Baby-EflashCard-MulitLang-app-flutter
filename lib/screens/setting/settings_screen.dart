@@ -1,7 +1,8 @@
-import 'package:eflash_multilagnuage_upgrade/database/db_provider.dart';
-import 'package:eflash_multilagnuage_upgrade/services/secure_storage.dart';
-import 'package:eflash_multilagnuage_upgrade/widgets/custom_switch.dart';
-import 'package:eflash_multilagnuage_upgrade/widgets/setting_container.dart';
+import 'package:baby_flash_apps/core/utils/responsive.dart';
+import 'package:baby_flash_apps/database/db_provider.dart';
+import 'package:baby_flash_apps/services/secure_storage.dart';
+import 'package:baby_flash_apps/widgets/custom_switch.dart';
+import 'package:baby_flash_apps/widgets/setting_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -44,6 +45,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isTablet = ResponsiveUtils.isTablet(context);
+
     return Consumer(
       builder: (context, ref, child) {
         return PopScope(
@@ -64,141 +67,151 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 color: Color(0xfff7cd89),
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                spacing: 5,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    spacing: 5,
-                    children: [
-                      Icon(Icons.settings, color: Color(0xff825c2f), size: 28),
-                      Text(
-                        'Setting'.toUpperCase(),
-                        style: const TextStyle(
-                          fontSize: 25,
-                          fontFamily: "Fredoka",
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xff825c2f),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: ResponsiveUtils.height(context, isTablet?1:0.2),
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      spacing: 5,
+                      children: [
+                        Icon(Icons.settings, color: Color(0xff825c2f), size:ResponsiveUtils.width(context, isTablet?2:6)),
+                        Text(
+                          'Setting'.toUpperCase(),
+                          style: TextStyle(
+                            fontSize: ResponsiveUtils.fontSize(
+                              context,
+                              isTablet ? 2 : 7.5,
+                            ),
+                            fontFamily: "Fredoka",
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xff825c2f),
+                          ),
                         ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: ResponsiveUtils.height(
+                        context,
+                        isTablet ? 0.2 : 0.5,
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 10),
-                  SettingContainer(
-                    child: Column(
-                      children: [
-                        _RowDropdown(questionMode: questionMode),
-
-                        Opacity(
-                          opacity: questionMode ? 0.5 : 1,
-                          child: _SwitchRow(
-                            icon: Icons.subtitles,
-                            title: "Language Text",
-                            value: languageText,
-                            onChanged: questionMode
-                                ? null
-                                : (val) async {
-                                    setState(() => languageText = val);
-                                    await SecureStorage.setLangText(val);
-                                  },
-                          ),
-                        ),
-                      ],
                     ),
-                  ),
-                  SettingContainer(
-                    child: Column(
-                      spacing: 15,
-                      children: [
-                        _SwitchRow(
-                          icon: Icons.music_note_rounded,
-                          title: "Music",
-                          value: music,
-                          onChanged: (val) async {
-                            setState(() => music = val);
-                            await SecureStorage.setMusic(val);
-                          },
-                        ),
-                        _SwitchRow(
-                          icon: Icons.graphic_eq_rounded,
-                          title: "Sound",
-                          value: sound,
-
-                          onChanged: (val) async {
-                            setState(() => sound = val);
-                            await SecureStorage.setSound(val);
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  SettingContainer(
-                    child: Column(
-                      spacing: 15,
-                      children: [
-                        _SwitchRow(
-                          title: "Question mode",
-                          value: questionMode,
-                          onChanged: (val) async {
-                            setState(() => questionMode = val);
-                            await SecureStorage.setQuestionMode(val);
-                            await SecureStorage.setSwipe(false);
-                            ref.read(dbProvider.notifier).loadQuestionMode();
-                          },
-                        ),
-
-                        Opacity(
-                          opacity: questionMode ? 0.5 : 1,
-                          child: _SwitchRow(
-                            icon: Icons.swipe,
-                            title: "Swipe",
-                            value: swipe,
-                            onChanged: questionMode
-                                ? null
-                                : (val) async {
-                                    setState(() => swipe = val);
-                                    await SecureStorage.setSwipe(val);
-                                  },
+                    SettingContainer(
+                      child: Column(
+                        children: [
+                          _RowDropdown(questionMode: questionMode),
+                
+                          Opacity(
+                            opacity: questionMode ? 0.5 : 1,
+                            child: _SwitchRow(
+                              icon: Icons.subtitles,
+                              title: "Language Text",
+                              value: languageText,
+                              onChanged: questionMode
+                                  ? null
+                                  : (val) async {
+                                      setState(() => languageText = val);
+                                      await SecureStorage.setLangText(val);
+                                    },
+                            ),
                           ),
-                        ),
-
-                        Opacity(
-                          opacity: questionMode ? 0.5 : 1,
-                          child: _SwitchRow(
-                            icon: Icons.shuffle_rounded,
-                            title: "Random Order",
-                            value: randomOrder,
-                            onChanged: questionMode
-                                ? null
-                                : (val) {
-                                    setState(() => randomOrder = val);
-                                  },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    spacing: 10,
-                    children: [
-                      Expanded(
-                        child: CommonButton(
-                          text: "Close",
-                          onPressed: () async {
-                            await ref
-                                .read(dbProvider.notifier)
-                                .loadSoundAndLangSettings();
-                            if (!context.mounted) return;
-                            Navigator.pop(context);
-                          },
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                    SettingContainer(
+                      child: Column(
+                        spacing: 15,
+                        children: [
+                          _SwitchRow(
+                            icon: Icons.music_note_rounded,
+                            title: "Music",
+                            value: music,
+                            onChanged: (val) async {
+                              setState(() => music = val);
+                              await SecureStorage.setMusic(val);
+                            },
+                          ),
+                          _SwitchRow(
+                            icon: Icons.graphic_eq_rounded,
+                            title: "Sound",
+                            value: sound,
+                
+                            onChanged: (val) async {
+                              setState(() => sound = val);
+                              await SecureStorage.setSound(val);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    SettingContainer(
+                      child: Column(
+                        spacing: 15,
+                        children: [
+                          _SwitchRow(
+                            title: "Question mode",
+                            value: questionMode,
+                            onChanged: (val) async {
+                              setState(() => questionMode = val);
+                              await SecureStorage.setQuestionMode(val);
+                              await SecureStorage.setSwipe(false);
+                              ref.read(dbProvider.notifier).loadQuestionMode();
+                            },
+                          ),
+                
+                          Opacity(
+                            opacity: questionMode ? 0.5 : 1,
+                            child: _SwitchRow(
+                              icon: Icons.swipe,
+                              title: "Swipe",
+                              value: swipe,
+                              onChanged: questionMode
+                                  ? null
+                                  : (val) async {
+                                      setState(() => swipe = val);
+                                      await SecureStorage.setSwipe(val);
+                                    },
+                            ),
+                          ),
+                
+                          Opacity(
+                            opacity: questionMode ? 0.5 : 1,
+                            child: _SwitchRow(
+                              icon: Icons.shuffle_rounded,
+                              title: "Random Order",
+                              value: randomOrder,
+                              onChanged: questionMode
+                                  ? null
+                                  : (val) {
+                                      setState(() => randomOrder = val);
+                                    },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      spacing: 10,
+                      children: [
+                        Expanded(
+                          child: CommonButton(
+                            text: "Close",
+                            onPressed: () async {
+                              await ref
+                                  .read(dbProvider.notifier)
+                                  .loadSoundAndLangSettings();
+                              if (!context.mounted) return;
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -246,6 +259,7 @@ class _RowDropdownState extends ConsumerState<_RowDropdown> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isTablet = ResponsiveUtils.isTablet(context);
     final state = ref.watch(dbProvider);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -256,8 +270,9 @@ class _RowDropdownState extends ConsumerState<_RowDropdown> {
             Icon(Icons.translate_rounded, size: 20),
             Text(
               "Language",
-              style: const TextStyle(
-                fontSize: 18,
+              style: TextStyle(
+                // fontSize: 18,
+                fontSize: ResponsiveUtils.fontSize(context, isTablet ? 2 : 5),
                 fontFamily: 'Fredoka',
                 fontWeight: FontWeight.w600,
               ),
@@ -267,12 +282,13 @@ class _RowDropdownState extends ConsumerState<_RowDropdown> {
         DropdownButton<String>(
           value: state.language,
           underline: const SizedBox(),
-          icon: const Icon(Icons.keyboard_arrow_down),
+          icon: Icon(Icons.keyboard_arrow_down,size: ResponsiveUtils.width(context, isTablet?2:4.8),),
           dropdownColor: Color(0xfff7cd89),
           borderRadius: BorderRadius.circular(20),
           style: TextStyle(
             color: widget.questionMode ? Colors.grey : Colors.black,
-            fontSize: 16,
+            // fontSize: 16,
+            fontSize: ResponsiveUtils.fontSize(context, isTablet ? 2 : 4.7),
             fontFamily: 'Fredoka',
             fontWeight: FontWeight.w500,
           ),
@@ -310,17 +326,19 @@ class _SwitchRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isTablet = ResponsiveUtils.isTablet(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
           spacing: 5,
           children: [
-            icon != null ? Icon(icon, size: 20) : SizedBox(),
+            icon != null ? Icon(icon, size: ResponsiveUtils.width(context, isTablet?2:4.8)) : SizedBox(),
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 18,
+              style: TextStyle(
+                // fontSize: 18,
+                fontSize: ResponsiveUtils.fontSize(context, isTablet ? 2 : 5),
                 fontFamily: 'Fredoka',
                 fontWeight: FontWeight.w600,
               ),

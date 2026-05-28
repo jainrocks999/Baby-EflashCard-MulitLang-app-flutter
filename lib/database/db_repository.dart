@@ -1,4 +1,4 @@
-import 'package:eflash_multilagnuage_upgrade/database/db_services.dart';
+import 'package:baby_flash_apps/database/db_services.dart';
 import 'package:sqflite/sqlite_api.dart';
 
 class DbRepository {

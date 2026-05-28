@@ -1,5 +1,5 @@
-import 'package:eflash_multilagnuage_upgrade/database/db_provider.dart';
-import 'package:eflash_multilagnuage_upgrade/router/route_paths.dart';
+import 'package:baby_flash_apps/database/db_provider.dart';
+import 'package:baby_flash_apps/router/route_paths.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -20,7 +20,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     super.initState();
     _initLang();
 
-    _controller = VideoPlayerController.asset('assets/videos/splash(1).mp4')
+    _controller = VideoPlayerController.asset('assets/videos/splash(2).mp4')
       ..initialize().then((_) {
         setState(() {});
         _controller.play();

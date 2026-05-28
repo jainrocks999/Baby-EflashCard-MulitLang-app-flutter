@@ -1,4 +1,5 @@
-import 'package:eflash_multilagnuage_upgrade/core/constants/app_colors.dart';
+import 'package:baby_flash_apps/core/constants/app_colors.dart';
+import 'package:baby_flash_apps/core/utils/responsive.dart';
 import 'package:flutter/material.dart';
 
 class HomeCards extends StatelessWidget {
@@ -22,8 +23,9 @@ class HomeCards extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+     final bool isTablet = ResponsiveUtils.isTablet(context);
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: EdgeInsets.all(ResponsiveUtils.width(context, isTablet ? 2 : 3),),
       margin: EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
         color: cardBg,
@@ -41,7 +43,12 @@ class HomeCards extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.only(right: 50),
-            child: Image.asset(imagePath, width: double.infinity),
+            child: Image.asset(imagePath,
+            height: ResponsiveUtils.height(
+                context,
+                isTablet ? 25 : 15,
+              ),
+             width: double.infinity),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -55,7 +62,11 @@ class HomeCards extends StatelessWidget {
                       title,
                       style: TextStyle(
                         fontFamily: "BubblegumSans",
-                        fontSize: 25,
+                        fontSize: ResponsiveUtils.fontSize(
+                            context,
+                            isTablet ? 2 : 7,
+                          ),
+                        
                         fontWeight: FontWeight.w900,
                         color: AppColors.primaryTxt,
                         letterSpacing: 1,
@@ -65,7 +76,10 @@ class HomeCards extends StatelessWidget {
                       subText,
                       style: TextStyle(
                         fontFamily: "BubblegumSans",
-                        fontSize: 15,
+                        fontSize: ResponsiveUtils.fontSize(
+                            context,
+                            isTablet ? 2 : 4.5,
+                          ),
                         color: AppColors.primaryTxt,
                       ),
                     ),
@@ -76,7 +90,6 @@ class HomeCards extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: onPress,
                     style: ElevatedButton.styleFrom(
-                      // backgroundColor: Colors.green,
                       backgroundColor: btnBg,
                       elevation: 2,
                       shape: RoundedRectangleBorder(
@@ -86,7 +99,7 @@ class HomeCards extends StatelessWidget {
                     child: Icon(
                       Icons.arrow_forward_rounded,
                       color: AppColors.primaryTxt,
-                      size: 35,
+                      size:ResponsiveUtils.width(context, isTablet?4:8)
                     ),
                   ),
                 ),

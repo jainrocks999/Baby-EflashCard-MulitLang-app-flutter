@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:eflash_multilagnuage_upgrade/core/utils/helper.dart';
-import 'package:eflash_multilagnuage_upgrade/database/db_provider.dart';
-import 'package:eflash_multilagnuage_upgrade/services/music_services.dart';
-import 'package:eflash_multilagnuage_upgrade/widgets/app_background.dart';
-import 'package:eflash_multilagnuage_upgrade/widgets/custom_snackbar.dart';
-import 'package:eflash_multilagnuage_upgrade/widgets/topbar.dart';
+import 'package:baby_flash_apps/core/utils/helper.dart';
+import 'package:baby_flash_apps/core/utils/responsive.dart';
+import 'package:baby_flash_apps/database/db_provider.dart';
+import 'package:baby_flash_apps/services/music_services.dart';
+import 'package:baby_flash_apps/widgets/app_background.dart';
+import 'package:baby_flash_apps/widgets/custom_snackbar.dart';
+import 'package:baby_flash_apps/widgets/topbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -61,6 +62,7 @@ class _ExerciseScreenState extends ConsumerState<ExerciseScreen> {
     final langName = AppHelpers.getLanguageFolder(
       randomItems[0]['language_name'],
     );
+   final bool isTablet = ResponsiveUtils.isTablet(context);
 
     return PopScope(
       canPop: true,
@@ -79,7 +81,7 @@ class _ExerciseScreenState extends ConsumerState<ExerciseScreen> {
                 padding: EdgeInsets.symmetric(horizontal: 18, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.amber[200],
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(ResponsiveUtils.width(context, isTablet ? 2 : 4)),
                   border: Border.all(width: 1, color: Colors.amber),
                   boxShadow: [
                     BoxShadow(
@@ -93,7 +95,8 @@ class _ExerciseScreenState extends ConsumerState<ExerciseScreen> {
                   'Fun with ${randomItems[0]['category']}',
                   style: TextStyle(
                     color: Colors.black54,
-                    fontSize: 14,
+                    // fontSize: 14,
+                    fontSize: ResponsiveUtils.fontSize(context, isTablet ? 5 : 4.4),
                     fontFamily: 'Fredoka',
                     fontWeight: FontWeight.w500,
                   ),
@@ -102,10 +105,14 @@ class _ExerciseScreenState extends ConsumerState<ExerciseScreen> {
 
               Spacer(),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                // padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveUtils.width(context, isTablet ? 3 : 5.5),
+            vertical: ResponsiveUtils.height(context, isTablet ? 1 : 1.5),
+          ),
                 decoration: BoxDecoration(
                   color: Color(0xffb3eafd),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(ResponsiveUtils.width(context, isTablet ? 2 : 4)),
                   border: Border.all(
                     width: 2,
                     color: Colors.white.withAlpha(150),
@@ -124,14 +131,15 @@ class _ExerciseScreenState extends ConsumerState<ExerciseScreen> {
                       : 'Click on ${randomItems[0]['word']}?',
                   style: TextStyle(
                     color: Colors.black54,
-                    fontSize: 16,
+                    // fontSize: 16,
+                    fontSize: ResponsiveUtils.fontSize(context, isTablet ? 5 : 4.8),
                     fontFamily: 'Fredoka',
                     fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
 
-              SizedBox(height: 30),
+              SizedBox(height: ResponsiveUtils.height(context, isTablet ? 1 : 2.5)),
 
               ImageGrid(
                 key: ValueKey(randomItems[0]['title']),
@@ -331,6 +339,7 @@ class ImageGridState extends State<ImageGrid> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isTablet = ResponsiveUtils.isTablet(context);
     return Column(
       children: [
         Padding(
@@ -439,7 +448,8 @@ class ImageGridState extends State<ImageGrid> {
             },
           ),
         ),
-        SizedBox(height: 50),
+        // SizedBox(height: 50),
+        SizedBox(height: ResponsiveUtils.height(context, isTablet ? 3 : 5.5)),
         ElevatedButton(
           onPressed: () {
             if (widget.isSoundOn) {
@@ -459,9 +469,14 @@ class ImageGridState extends State<ImageGrid> {
             backgroundColor: Color(0xffc7f0e5).withAlpha(135),
             elevation: 5,
             shadowColor: Colors.black26,
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+            // padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+             padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveUtils.width(context, isTablet ? 2 : 3),
+            vertical: ResponsiveUtils.height(context, isTablet ? 1 : 0.5),
+          ),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(50),
+              // borderRadius: BorderRadius.circular(50),
+              borderRadius: BorderRadius.circular(ResponsiveUtils.width(context, isTablet ? 2 : 7)),
               side: BorderSide(color: Color(0xff5fbca4), width: 3),
             ),
           ),
@@ -472,15 +487,21 @@ class ImageGridState extends State<ImageGrid> {
             children: [
               SvgPicture.asset(
                 "assets/svgs/replay_btn.svg",
-                width: 60,
-                height: 60,
+                width: ResponsiveUtils.width(
+                        context,
+                        isTablet ? 10 : 17,
+                      ),
+                height: ResponsiveUtils.width(
+                        context,
+                        isTablet ? 10 : 17,
+                      ),
               ),
 
               Text(
                 'Replay',
                 style: TextStyle(
                   color: Colors.black54,
-                  fontSize: 23,
+                  fontSize: ResponsiveUtils.fontSize(context, isTablet ? 3 : 7),
                   fontFamily: 'Fredoka',
                   fontWeight: FontWeight.w700,
                 ),

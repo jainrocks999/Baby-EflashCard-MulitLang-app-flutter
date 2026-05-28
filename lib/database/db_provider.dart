@@ -1,5 +1,5 @@
-import 'package:eflash_multilagnuage_upgrade/database/db_repository.dart';
-import 'package:eflash_multilagnuage_upgrade/services/secure_storage.dart';
+import 'package:baby_flash_apps/database/db_repository.dart';
+import 'package:baby_flash_apps/services/secure_storage.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/legacy.dart';
 

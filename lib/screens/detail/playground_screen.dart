@@ -1,13 +1,14 @@
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
-import 'package:eflash_multilagnuage_upgrade/core/utils/helper.dart';
-import 'package:eflash_multilagnuage_upgrade/database/db_provider.dart';
-import 'package:eflash_multilagnuage_upgrade/services/music_services.dart';
-import 'package:eflash_multilagnuage_upgrade/widgets/app_background.dart';
-import 'package:eflash_multilagnuage_upgrade/widgets/custom_snackbar.dart';
-import 'package:eflash_multilagnuage_upgrade/widgets/icon_elevated_btn.dart';
-import 'package:eflash_multilagnuage_upgrade/widgets/topbar.dart';
+import 'package:baby_flash_apps/core/utils/helper.dart';
+import 'package:baby_flash_apps/core/utils/responsive.dart';
+import 'package:baby_flash_apps/database/db_provider.dart';
+import 'package:baby_flash_apps/services/music_services.dart';
+import 'package:baby_flash_apps/widgets/app_background.dart';
+import 'package:baby_flash_apps/widgets/custom_snackbar.dart';
+import 'package:baby_flash_apps/widgets/icon_elevated_btn.dart';
+import 'package:baby_flash_apps/widgets/topbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -37,6 +38,7 @@ class _PlaygroundScreenState extends ConsumerState<PlaygroundScreen> {
     if (state.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
+   final bool isTablet = ResponsiveUtils.isTablet(context);
 
     return PopScope(
       canPop: true,
@@ -50,7 +52,7 @@ class _PlaygroundScreenState extends ConsumerState<PlaygroundScreen> {
           child: Column(
             children: [
               const TopBar(showBackButton: true),
-              SizedBox(height: 20),
+              SizedBox(height: ResponsiveUtils.height(context, isTablet ? 1 : 1),),
               ImageSlider(
                 key: sliderKey,
                 data: state.data,
@@ -65,6 +67,10 @@ class _PlaygroundScreenState extends ConsumerState<PlaygroundScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   IconElevatedBtn(
+                    size: ResponsiveUtils.width(
+                        context,
+                        isTablet ? 10 : 20,
+                      ),
                     assetPath: 'assets/svgs/left_btn.svg',
                     onPressed: () {
                       sliderKey.currentState?.previousPage();
@@ -91,9 +97,17 @@ class _PlaygroundScreenState extends ConsumerState<PlaygroundScreen> {
                         );
                       }
                     },
-                    size: 120,
+                    // size: 120,
+                    size: ResponsiveUtils.width(
+                        context,
+                        isTablet ? 10 : 28,
+                      ),
                   ),
                   IconElevatedBtn(
+                    size: ResponsiveUtils.width(
+                        context,
+                        isTablet ? 10 : 20,
+                      ),
                     assetPath: 'assets/svgs/right_btn.svg',
                     onPressed: () {
                       sliderKey.currentState?.nextPage();
@@ -269,15 +283,19 @@ class ImageSliderState extends State<ImageSlider> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isTablet = ResponsiveUtils.isTablet(context);
     return Column(
-      spacing: 20,
-
+      spacing: ResponsiveUtils.height(context, isTablet ? 2 : 4),
       children: [
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+          // padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+          padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveUtils.width(context, isTablet ? 3 : 5.5),
+            vertical: ResponsiveUtils.height(context, isTablet ? 1 : 1.5),
+          ),
           decoration: BoxDecoration(
             color: Colors.amber[200],
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(ResponsiveUtils.width(context, isTablet ? 2 : 4)),
             border: Border.all(width: 2, color: Colors.amber),
             boxShadow: [
               BoxShadow(
@@ -291,19 +309,24 @@ class ImageSliderState extends State<ImageSlider> {
             '${currentIndex + 1}/${widget.data.length}',
             style: TextStyle(
               color: Colors.black54,
-              fontSize: 20,
+              // fontSize: 20,
+              fontSize: ResponsiveUtils.fontSize(context, isTablet ? 5 : 5.5),
               fontFamily: 'Fredoka',
               fontWeight: FontWeight.w700,
             ),
           ),
         ),
-        SizedBox(height: 20),
+        // SizedBox(height: 20),
         widget.isShowLangTxt
             ? Container(
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                // padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveUtils.width(context, isTablet ? 3 : 5.5),
+            vertical: ResponsiveUtils.height(context, isTablet ? 1 : 1.5),
+          ),
                 decoration: BoxDecoration(
                   color: Color(0xffb3eafd),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(ResponsiveUtils.width(context, isTablet ? 2 : 4)),
                   border: Border.all(
                     width: 2,
                     color: Colors.white.withAlpha(150),
@@ -322,7 +345,8 @@ class ImageSliderState extends State<ImageSlider> {
                         '${widget.data[currentIndex]['word'] ?? widget.data[currentIndex]['sound'].replaceAll('.mp3', '')}?',
                         style: TextStyle(
                           color: Colors.black54,
-                          fontSize: 16,
+                          // fontSize: 16,
+                          fontSize: ResponsiveUtils.fontSize(context, isTablet ? 3 : 4.5),
                           fontFamily: 'Fredoka',
                           fontWeight: FontWeight.w700,
                         ),
@@ -332,7 +356,9 @@ class ImageSliderState extends State<ImageSlider> {
             : SizedBox(height: 57),
 
         SizedBox(
-          height: 350,
+          // height: 350,
+          height: ResponsiveUtils.height(context, isTablet ? 40 : 40),
+          width: ResponsiveUtils.width(context, isTablet ? 40 : 88),
           child: GestureDetector(
             onHorizontalDragStart: (_) {
               if (!widget.isSwpieOn) {

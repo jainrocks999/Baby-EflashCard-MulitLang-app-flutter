@@ -1,3 +1,4 @@
+import 'package:baby_flash_apps/core/utils/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -9,6 +10,8 @@ class CustomSwitch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isTablet = ResponsiveUtils.isTablet(context);
+
     return GestureDetector(
       onTap: () {
         if (onChanged != null) {
@@ -17,11 +20,12 @@ class CustomSwitch extends StatelessWidget {
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
-        width: 60,
-        height: 35,
+        width: ResponsiveUtils.width(context, isTablet?7.5:15),
+        
+        height: ResponsiveUtils.height(context, isTablet?7:4.5),
         decoration: BoxDecoration(
           color: value ? const Color(0xff7ED957) : const Color(0xffD9D9D9),
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(ResponsiveUtils.width(context, isTablet?1:2)),
           boxShadow: [
             BoxShadow(
               color: Colors.black26,
@@ -39,7 +43,7 @@ class CustomSwitch extends StatelessWidget {
                     left: 5,
                     child: SvgPicture.asset(
                       "assets/svgs/check.svg",
-                      width: 23,
+                      width: ResponsiveUtils.width(context, isTablet?2:5.8),
                       colorFilter: const ColorFilter.mode(
                         Colors.green,
                         BlendMode.srcIn,
@@ -50,7 +54,7 @@ class CustomSwitch extends StatelessWidget {
                     right: 5,
                     child: SvgPicture.asset(
                       "assets/svgs/cross.svg",
-                      width: 22,
+                      width: ResponsiveUtils.width(context, isTablet?2:5),
                       colorFilter: const ColorFilter.mode(
                         Colors.grey,
                         BlendMode.srcIn,
@@ -60,14 +64,15 @@ class CustomSwitch extends StatelessWidget {
             AnimatedPositioned(
               duration: const Duration(milliseconds: 250),
               curve: Curves.easeInOut,
-              left: value ? 30 : 3,
-              right: value ? 3 : 30,
+              left: value ? ResponsiveUtils.width(context, isTablet?7.5:7.8) : ResponsiveUtils.width(context, isTablet?0.5:1.3),
+              right: value ? ResponsiveUtils.width(context, isTablet?0.5:1.3) : ResponsiveUtils.width(context, isTablet?7.5:7.8),
+
               child: Container(
-                width: 30,
-                height: 30,
+               width: ResponsiveUtils.width(context, isTablet?7.5:7.8),
+                height: ResponsiveUtils.height(context, isTablet?4:3.0),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(ResponsiveUtils.width(context, isTablet?2:1.5)),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black26,
