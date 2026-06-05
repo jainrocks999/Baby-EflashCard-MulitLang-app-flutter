@@ -34,12 +34,14 @@ class _PlaygroundScreenState extends ConsumerState<PlaygroundScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // final isPlaying = sliderKey.currentState?.isPlaying ?? false;
     final state = ref.watch(dbProvider);
+
+    // print("venom2 $isPlaying");
     if (state.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
-   final bool isTablet = ResponsiveUtils.isTablet(context);
-
+    final bool isTablet = ResponsiveUtils.isTablet(context);
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (didPop, result) {
@@ -52,7 +54,9 @@ class _PlaygroundScreenState extends ConsumerState<PlaygroundScreen> {
           child: Column(
             children: [
               const TopBar(showBackButton: true),
-              SizedBox(height: ResponsiveUtils.height(context, isTablet ? 1 : 1),),
+              SizedBox(
+                height: ResponsiveUtils.height(context, isTablet ? 1 : 1),
+              ),
               ImageSlider(
                 key: sliderKey,
                 data: state.data,
@@ -67,47 +71,56 @@ class _PlaygroundScreenState extends ConsumerState<PlaygroundScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   IconElevatedBtn(
-                    size: ResponsiveUtils.width(
-                        context,
-                        isTablet ? 18 : 20,
-                      ),
+                    size: ResponsiveUtils.width(context, isTablet ? 18 : 20),
                     assetPath: 'assets/svgs/left_btn.svg',
                     onPressed: () {
                       sliderKey.currentState?.previousPage();
                     },
                   ),
-                  IconElevatedBtn(
-                    assetPath: 'assets/svgs/replay_btn.svg',
-                    onPressed: () {
-                      if (state.isSoundOn) {
-                        final stateRef = sliderKey.currentState;
-                        if (stateRef != null) {
-                          stateRef.playItemAudio(
-                            stateRef.widget.data[stateRef.currentIndex],
-                          );
-                        }
-                      } else {
-                        showCustomSnackBar(
-                          context: context,
-                          title: "Sound is Off",
-                          subtitle:
-                              " Turn on sound in settings to hear the fun sounds 🎵",
-                          backgroundColor: Color(0xffb3903e),
-                          icon: Icons.volume_off,
-                        );
-                      }
+                  ValueListenableBuilder<bool>(
+                    valueListenable:
+                        sliderKey.currentState?.isPlayingNotifier ??
+                            ValueNotifier(false),
+                    builder: (context, isPlaying, child) {
+                      return IconElevatedBtn(
+                        assetPath:
+                            'assets/svgs/${isPlaying ? 'stop_btn' : 'replay_btn'}.svg',
+                        onPressed: () async {
+                          if (state.isSoundOn) {
+                            final stateRef =
+                                sliderKey.currentState;
+
+                            if (stateRef != null) {
+                              if (isPlaying) {
+                                await stateRef.stopAudio();
+                              } else {
+                                await stateRef.playItemAudio(
+                                  stateRef.widget.data[
+                                      stateRef.currentIndex],
+                                );
+                              }
+                            }
+                          } else {
+                            showCustomSnackBar(
+                              context: context,
+                              title: "Sound is Off",
+                              subtitle:
+                                  "Turn on sound in settings to hear the fun sounds 🎵",
+                              backgroundColor:
+                                  const Color(0xffb3903e),
+                              icon: Icons.volume_off,
+                            );
+                          }
+                        },
+                        size: ResponsiveUtils.width(
+                          context,
+                          isTablet ? 25 : 28,
+                        ),
+                      );
                     },
-                    // size: 120,
-                    size: ResponsiveUtils.width(
-                        context,
-                        isTablet ? 25 : 28,
-                      ),
                   ),
                   IconElevatedBtn(
-                    size: ResponsiveUtils.width(
-                        context,
-                        isTablet ? 18 : 20,
-                      ),
+                    size: ResponsiveUtils.width(context, isTablet ? 18 : 20),
                     assetPath: 'assets/svgs/right_btn.svg',
                     onPressed: () {
                       sliderKey.currentState?.nextPage();
@@ -147,7 +160,9 @@ class ImageSliderState extends State<ImageSlider> {
   late final StreamSubscription<PlayerState> _playerStateSub;
 
   int currentIndex = 0;
-  bool isPlaying = false;
+  // bool isPlaying = false;
+  final ValueNotifier<bool> isPlayingNotifier =
+      ValueNotifier(false);
 
   Future<void>? _currentTask;
 
@@ -159,11 +174,13 @@ class ImageSliderState extends State<ImageSlider> {
       if (!mounted) return;
 
       if (state == PlayerState.playing) {
-        setState(() => isPlaying = true);
+        // setState(() => isPlaying = true);
+        isPlayingNotifier.value = true;
       } else if (state == PlayerState.completed ||
           state == PlayerState.stopped ||
           state == PlayerState.paused) {
-        setState(() => isPlaying = false);
+        // setState(() => isPlaying = false);
+         isPlayingNotifier.value = false;
       }
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -178,6 +195,7 @@ class ImageSliderState extends State<ImageSlider> {
   Future<void> _configureAudioPlayer() async {
     try {
       await _audioPlayer.setAudioContext(MusicService.effectsAudioContext);
+      await _audioPlayer.setVolume(MusicService.effectsVolume);
     } catch (e) {
       debugPrint("Playground audio context error: $e");
     }
@@ -206,10 +224,15 @@ class ImageSliderState extends State<ImageSlider> {
 
   @override
   void dispose() {
+     isPlayingNotifier.dispose();
     _playerStateSub.cancel();
     _audioPlayer.dispose();
     _controller.dispose();
     super.dispose();
+  }
+   Future<void> stopAudio() async {
+    await _audioPlayer.stop();
+    isPlayingNotifier.value = false;
   }
 
   Future<void> playItemAudio(Map<String, dynamic> item) async {
@@ -283,6 +306,7 @@ class ImageSliderState extends State<ImageSlider> {
 
   @override
   Widget build(BuildContext context) {
+    // print("venom ${isPlaying}");
     final bool isTablet = ResponsiveUtils.isTablet(context);
     return Column(
       spacing: ResponsiveUtils.height(context, isTablet ? 2 : 4),
@@ -295,7 +319,9 @@ class ImageSliderState extends State<ImageSlider> {
           ),
           decoration: BoxDecoration(
             color: Colors.amber[200],
-            borderRadius: BorderRadius.circular(ResponsiveUtils.width(context, isTablet ? 2 : 4)),
+            borderRadius: BorderRadius.circular(
+              ResponsiveUtils.width(context, isTablet ? 2 : 4),
+            ),
             border: Border.all(width: 2, color: Colors.amber),
             boxShadow: [
               BoxShadow(
@@ -321,12 +347,17 @@ class ImageSliderState extends State<ImageSlider> {
             ? Container(
                 // padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                 padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveUtils.width(context, isTablet ? 3 : 5.5),
-            vertical: ResponsiveUtils.height(context, isTablet ? 1 : 1.5),
-          ),
+                  horizontal: ResponsiveUtils.width(
+                    context,
+                    isTablet ? 3 : 5.5,
+                  ),
+                  vertical: ResponsiveUtils.height(context, isTablet ? 1 : 1.5),
+                ),
                 decoration: BoxDecoration(
                   color: Color(0xffb3eafd),
-                  borderRadius: BorderRadius.circular(ResponsiveUtils.width(context, isTablet ? 2 : 4)),
+                  borderRadius: BorderRadius.circular(
+                    ResponsiveUtils.width(context, isTablet ? 2 : 4),
+                  ),
                   border: Border.all(
                     width: 2,
                     color: Colors.white.withAlpha(150),
@@ -346,7 +377,10 @@ class ImageSliderState extends State<ImageSlider> {
                         style: TextStyle(
                           color: Colors.black54,
                           // fontSize: 16,
-                          fontSize: ResponsiveUtils.fontSize(context, isTablet ? 3 : 4.5),
+                          fontSize: ResponsiveUtils.fontSize(
+                            context,
+                            isTablet ? 3 : 4.5,
+                          ),
                           fontFamily: 'Fredoka',
                           fontWeight: FontWeight.w700,
                         ),

@@ -222,6 +222,7 @@ class ImageGridState extends State<ImageGrid> {
   Future<void> _configureAudioPlayer() async {
     try {
       await _audioPlayer.setAudioContext(MusicService.effectsAudioContext);
+      await _audioPlayer.setVolume(MusicService.effectsVolume);
     } catch (e) {
       debugPrint("Exercise audio context error: $e");
     }

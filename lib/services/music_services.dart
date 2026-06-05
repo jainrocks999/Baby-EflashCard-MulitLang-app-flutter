@@ -4,6 +4,7 @@ import 'package:flutter/rendering.dart';
 class MusicService {
   static const double _normalVolume = 1.0;
   static const double _duckedVolume = 0.25;
+  static const double effectsVolume = 1.0;
 
   static final MusicService _instance = MusicService._internal();
   factory MusicService() => _instance;
@@ -27,8 +28,8 @@ class MusicService {
   static final AudioContext effectsAudioContext = AudioContext(
     android: AudioContextAndroid(
       isSpeakerphoneOn: true,
-      contentType: AndroidContentType.sonification,
-      usageType: AndroidUsageType.assistanceSonification,
+      contentType: AndroidContentType.music,
+      usageType: AndroidUsageType.media,
       audioFocus: AndroidAudioFocus.none,
     ),
     iOS: AudioContextIOS(
