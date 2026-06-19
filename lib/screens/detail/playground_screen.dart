@@ -14,7 +14,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class PlaygroundScreen extends ConsumerStatefulWidget {
   final String category;
-  const PlaygroundScreen({super.key, required this.category});
+  final int cateIndex;
+  const PlaygroundScreen({super.key, required this.category,required this.cateIndex});
 
   @override
   ConsumerState<PlaygroundScreen> createState() => _PlaygroundScreenState();
@@ -34,10 +35,7 @@ class _PlaygroundScreenState extends ConsumerState<PlaygroundScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // final isPlaying = sliderKey.currentState?.isPlaying ?? false;
     final state = ref.watch(dbProvider);
-
-    // print("venom2 $isPlaying");
     if (state.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
@@ -80,23 +78,21 @@ class _PlaygroundScreenState extends ConsumerState<PlaygroundScreen> {
                   ValueListenableBuilder<bool>(
                     valueListenable:
                         sliderKey.currentState?.isPlayingNotifier ??
-                            ValueNotifier(false),
+                        ValueNotifier(false),
                     builder: (context, isPlaying, child) {
                       return IconElevatedBtn(
                         assetPath:
                             'assets/svgs/${isPlaying ? 'stop_btn' : 'replay_btn'}.svg',
                         onPressed: () async {
                           if (state.isSoundOn) {
-                            final stateRef =
-                                sliderKey.currentState;
+                            final stateRef = sliderKey.currentState;
 
                             if (stateRef != null) {
                               if (isPlaying) {
                                 await stateRef.stopAudio();
                               } else {
                                 await stateRef.playItemAudio(
-                                  stateRef.widget.data[
-                                      stateRef.currentIndex],
+                                  stateRef.widget.data[stateRef.currentIndex],
                                 );
                               }
                             }
@@ -106,8 +102,7 @@ class _PlaygroundScreenState extends ConsumerState<PlaygroundScreen> {
                               title: "Sound is Off",
                               subtitle:
                                   "Turn on sound in settings to hear the fun sounds 🎵",
-                              backgroundColor:
-                                  const Color(0xffb3903e),
+                              backgroundColor: const Color(0xffb3903e),
                               icon: Icons.volume_off,
                             );
                           }
@@ -122,8 +117,20 @@ class _PlaygroundScreenState extends ConsumerState<PlaygroundScreen> {
                   IconElevatedBtn(
                     size: ResponsiveUtils.width(context, isTablet ? 18 : 20),
                     assetPath: 'assets/svgs/right_btn.svg',
-                    onPressed: () {
-                      sliderKey.currentState?.nextPage();
+                    onPressed: () async {
+                      if (sliderKey.currentState!.currentIndex <
+                          state.data.length - 1) {
+                        sliderKey.currentState?.nextPage();
+                      } else {
+                        final result =
+                            await AppHelpers.showAfterCompleteActivityModal(
+                              context,
+                              widget.cateIndex,
+                            );
+                        if (result == 0) {
+                          sliderKey.currentState?.resetToFirstPage();
+                        }
+                      }
                     },
                   ),
                 ],
@@ -160,11 +167,9 @@ class ImageSliderState extends State<ImageSlider> {
   late final StreamSubscription<PlayerState> _playerStateSub;
 
   int currentIndex = 0;
-  // bool isPlaying = false;
-  final ValueNotifier<bool> isPlayingNotifier =
-      ValueNotifier(false);
+  final ValueNotifier<bool> isPlayingNotifier = ValueNotifier(false);
 
-  Future<void>? _currentTask;
+  int _playToken = 0;
 
   @override
   void initState() {
@@ -174,13 +179,11 @@ class ImageSliderState extends State<ImageSlider> {
       if (!mounted) return;
 
       if (state == PlayerState.playing) {
-        // setState(() => isPlaying = true);
         isPlayingNotifier.value = true;
       } else if (state == PlayerState.completed ||
           state == PlayerState.stopped ||
           state == PlayerState.paused) {
-        // setState(() => isPlaying = false);
-         isPlayingNotifier.value = false;
+        isPlayingNotifier.value = false;
       }
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -205,50 +208,49 @@ class ImageSliderState extends State<ImageSlider> {
   void didUpdateWidget(covariant ImageSlider oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.data != widget.data) {
+      _playToken++;
       _audioPlayer.stop();
-      // _audioPlayer.release();
 
       setState(() {
         currentIndex = 0;
       });
-
-      if (widget.data.isNotEmpty) {
-        if (widget.isSoundOn) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            playItemAudio(widget.data[0]);
-          });
-        }
+      if (widget.data.isNotEmpty && widget.isSoundOn) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          playItemAudio(widget.data[0]);
+        });
       }
     }
   }
 
   @override
   void dispose() {
-     isPlayingNotifier.dispose();
+    isPlayingNotifier.dispose();
     _playerStateSub.cancel();
     _audioPlayer.dispose();
     _controller.dispose();
     super.dispose();
   }
-   Future<void> stopAudio() async {
+
+  Future<void> stopAudio() async {
     await _audioPlayer.stop();
     isPlayingNotifier.value = false;
   }
 
   Future<void> playItemAudio(Map<String, dynamic> item) async {
-    _currentTask = _playInternal(item);
-    await _currentTask;
+    _playToken++;
+    final token = _playToken;
+
+    await _audioPlayer.stop();
+    _playInternal(item, token);
   }
 
-  Future<void> _playInternal(Map<String, dynamic> item) async {
+  Future<void> _playInternal(Map<String, dynamic> item, int token) async {
     await MusicService().runWithDuckedMusic(() async {
       try {
-        await _audioPlayer.stop();
-        // await _audioPlayer.release();
+        if (token != _playToken) return;
 
         final langName = AppHelpers.getLanguageFolder(item['language_name']);
 
-        // final actualSound = item['actualsound'];
         final actualSound = langName == 'japanies'
             ? item['actualsound']?.replaceAll('-', '_')
             : item['actualsound'];
@@ -259,6 +261,7 @@ class ImageSliderState extends State<ImageSlider> {
         if (actualSound != null &&
             actualSound.toString().isNotEmpty &&
             actualSound.toString() != '0') {
+          if (token != _playToken) return;
           await _audioPlayer.play(AssetSource('files/$langName/$actualSound'));
 
           try {
@@ -266,9 +269,13 @@ class ImageSliderState extends State<ImageSlider> {
               const Duration(seconds: 8),
             );
           } catch (_) {}
+          if (token != _playToken) {
+            await _audioPlayer.stop();
+            return;
+          }
         }
 
-        if (!mounted) return;
+        if (!mounted || token != _playToken) return;
 
         if (sound != null && sound.toString().isNotEmpty) {
           await _audioPlayer.play(AssetSource('files/$langName/$sound'));
@@ -277,6 +284,10 @@ class ImageSliderState extends State<ImageSlider> {
               const Duration(seconds: 8),
             );
           } catch (_) {}
+          if (token != _playToken) {
+            await _audioPlayer.stop();
+            return;
+          }
         }
       } catch (e) {
         debugPrint("Audio error: $e");
@@ -284,8 +295,11 @@ class ImageSliderState extends State<ImageSlider> {
     });
   }
 
-  void nextPage() {
+  void nextPage() async {
     if (currentIndex < widget.data.length - 1) {
+      _playToken++;
+      await _audioPlayer.stop();
+
       _controller.animateToPage(
         currentIndex + 1,
         duration: const Duration(milliseconds: 200),
@@ -294,8 +308,11 @@ class ImageSliderState extends State<ImageSlider> {
     }
   }
 
-  void previousPage() {
+  void previousPage() async {
     if (currentIndex > 0) {
+      _playToken++;
+      await _audioPlayer.stop();
+
       _controller.animateToPage(
         currentIndex - 1,
         duration: const Duration(milliseconds: 200),
@@ -304,15 +321,25 @@ class ImageSliderState extends State<ImageSlider> {
     }
   }
 
+  void resetToFirstPage() {
+    setState(() {
+      currentIndex = 0;
+    });
+
+    _controller.jumpToPage(0);
+
+    if (widget.data.isNotEmpty && widget.isSoundOn) {
+      playItemAudio(widget.data[0]);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // print("venom ${isPlaying}");
     final bool isTablet = ResponsiveUtils.isTablet(context);
     return Column(
       spacing: ResponsiveUtils.height(context, isTablet ? 2 : 4),
       children: [
         Container(
-          // padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
           padding: EdgeInsets.symmetric(
             horizontal: ResponsiveUtils.width(context, isTablet ? 3 : 5.5),
             vertical: ResponsiveUtils.height(context, isTablet ? 1 : 1.5),
@@ -335,17 +362,14 @@ class ImageSliderState extends State<ImageSlider> {
             '${currentIndex + 1}/${widget.data.length}',
             style: TextStyle(
               color: Colors.black54,
-              // fontSize: 20,
               fontSize: ResponsiveUtils.fontSize(context, isTablet ? 5 : 5.5),
               fontFamily: 'Fredoka',
               fontWeight: FontWeight.w700,
             ),
           ),
         ),
-        // SizedBox(height: 20),
-        widget.isShowLangTxt
+        widget.isShowLangTxt && widget.data.isNotEmpty
             ? Container(
-                // padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                 padding: EdgeInsets.symmetric(
                   horizontal: ResponsiveUtils.width(
                     context,
@@ -376,7 +400,6 @@ class ImageSliderState extends State<ImageSlider> {
                         '${widget.data[currentIndex]['word'] ?? widget.data[currentIndex]['sound'].replaceAll('.mp3', '')}?',
                         style: TextStyle(
                           color: Colors.black54,
-                          // fontSize: 16,
                           fontSize: ResponsiveUtils.fontSize(
                             context,
                             isTablet ? 3 : 4.5,
@@ -390,7 +413,6 @@ class ImageSliderState extends State<ImageSlider> {
             : SizedBox(height: 57),
 
         SizedBox(
-          // height: 350,
           height: ResponsiveUtils.height(context, isTablet ? 48 : 40),
           width: ResponsiveUtils.width(context, isTablet ? 85 : 88),
           child: GestureDetector(

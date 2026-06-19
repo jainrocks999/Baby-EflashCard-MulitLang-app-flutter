@@ -20,8 +20,12 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: RoutePaths.detail,
       builder: (context, state) {
-        final category = state.extra as String;
-        return PlaygroundScreen(category: category);
+        final extra = state.extra as Map<String, dynamic>;
+
+        final category = extra['category'] as String;
+        final index =extra['index'] as int;
+        
+        return PlaygroundScreen(category: category,cateIndex:index);
       },
     ),
     GoRoute(

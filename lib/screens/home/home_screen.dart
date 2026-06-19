@@ -1,3 +1,5 @@
+import 'package:baby_flash_apps/core/constants/app_colors.dart';
+import 'package:baby_flash_apps/core/constants/category.dart';
 import 'package:baby_flash_apps/core/utils/helper.dart';
 import 'package:baby_flash_apps/database/db_provider.dart';
 import 'package:baby_flash_apps/router/route_paths.dart';
@@ -38,7 +40,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
-
     Future.microtask(() async {
       await ref.read(dbProvider.notifier).loadCateCounts();
       await ref.read(dbProvider.notifier).loadQuestionMode();
@@ -93,199 +94,38 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ),
                         ),
 
-                        if (!isJapanese)
-                          HomeCards(
-                            imagePath: "assets/images/alphabets.png",
-                            title: "The Alphabets",
-                            subText: AppHelpers.getCount(
-                              "Alphabet",
-                              state.categoryCounts,
-                            ),
-                            cardBg: Color(0xffe5cb5b),
-                            onPress: () => context.push(
-                              state.questionMode == true
-                                  ? RoutePaths.exercise
-                                  : RoutePaths.detail,
-                              extra: 'Alphabet',
-                            ),
-                          ),
-                        HomeCards(
-                          imagePath: "assets/images/animals.png",
-                          title: "Animals",
-                          subText: AppHelpers.getCount(
-                            "Animal",
-                            state.categoryCounts,
-                          ),
-                          cardBg: Color(0xffb6c0fd),
-                          btnBg: Color(0xff468fde),
-                          onPress: () => context.push(
-                            state.questionMode == true
-                                ? RoutePaths.exercise
-                                : RoutePaths.detail,
-                            extra: 'Animal',
-                          ),
-                        ),
-                        HomeCards(
-                          imagePath: "assets/images/numbers.png",
-                          title: "Numbers",
-                          // subText: "Total 26 Charter",
-                          subText: AppHelpers.getCount(
-                            "Numbers",
-                            state.categoryCounts,
-                          ),
-                          cardBg: Color(0xfff27650),
-                          btnBg: Color(0xfff6d138),
-                          onPress: () => context.push(
-                            state.questionMode == true
-                                ? RoutePaths.exercise
-                                : RoutePaths.detail,
-                            extra: 'Numbers',
-                          ),
-                        ),
-                        HomeCards(
-                          imagePath: "assets/images/body_parts.png",
-                          title: "Body parts",
-                          subText: AppHelpers.getCount(
-                            "BodyParts",
-                            state.categoryCounts,
-                          ),
-                          cardBg: Color(0xffed052d),
-                          btnBg: Color(0xff7ac88e),
-                          onPress: () => context.push(
-                            state.questionMode == true
-                                ? RoutePaths.exercise
-                                : RoutePaths.detail,
-                            extra: 'BodyParts',
-                          ),
-                        ),
-                        HomeCards(
-                          imagePath: "assets/images/music_instu.png",
-                          title: "Music Instuments",
-                          subText: AppHelpers.getCount(
-                            "ArtMusic",
-                            state.categoryCounts,
-                          ),
-                          cardBg: Color(0xffe6606c),
-                          btnBg: Color(0xffb16e37),
-                          onPress: () => context.push(
-                            state.questionMode == true
-                                ? RoutePaths.exercise
-                                : RoutePaths.detail,
-                            extra: 'ArtMusic',
-                          ),
-                        ),
-                        HomeCards(
-                          imagePath: "assets/images/colors.png",
-                          title: "Colors",
-                          subText: AppHelpers.getCount(
-                            "Colors",
-                            state.categoryCounts,
-                          ),
-                          cardBg: Color(0xff7ac88e),
-                          btnBg: Color(0xffe6606c),
-                          onPress: () => context.push(
-                            state.questionMode == true
-                                ? RoutePaths.exercise
-                                : RoutePaths.detail,
-                            extra: 'Colors',
-                          ),
-                        ),
-                        HomeCards(
-                          imagePath: "assets/images/shaps.png",
-                          title: "Shaps",
-                          subText: AppHelpers.getCount(
-                            "Shapes",
-                            state.categoryCounts,
-                          ),
-                          // cardBg: Color(0xff48adce),
-                          cardBg: Color(0xffecea00),
-                          btnBg: Color(0xffe7a700),
-                          onPress: () => context.push(
-                            state.questionMode == true
-                                ? RoutePaths.exercise
-                                : RoutePaths.detail,
-                            extra: 'Shapes',
-                          ),
-                        ),
-                        HomeCards(
-                          imagePath: "assets/images/fruts.png",
-                          title: "Fruts & Food",
-                          subText: AppHelpers.getCount(
-                            "Food",
-                            state.categoryCounts,
-                          ),
-                          // cardBg: Color(0xff48adce),
-                          cardBg: Color(0xff4f97fe),
-                          btnBg: Color(0xffed052d),
-                          onPress: () => context.push(
-                            state.questionMode == true
-                                ? RoutePaths.exercise
-                                : RoutePaths.detail,
-                            extra: 'Food',
-                          ),
-                        ),
-                        HomeCards(
-                          imagePath: "assets/images/vehicles.png",
-                          title: "Vehicles",
-                          subText: AppHelpers.getCount(
-                            "Transport",
-                            state.categoryCounts,
-                          ),
-                          cardBg: Color(0xfff27650),
-                          onPress: () => context.push(
-                            state.questionMode == true
-                                ? RoutePaths.exercise
-                                : RoutePaths.detail,
-                            extra: 'Transport',
-                          ),
-                        ),
-                        HomeCards(
-                          imagePath: "assets/images/sports.png",
-                          title: "Sports & Things",
-                          subText: AppHelpers.getCount(
-                            "OutdoorItems",
-                            state.categoryCounts,
-                          ),
-                          cardBg: Color(0xffe5cb5b),
-                          btnBg: Color(0xff7ac88e),
-                          onPress: () => context.push(
-                            state.questionMode == true
-                                ? RoutePaths.exercise
-                                : RoutePaths.detail,
-                            extra: 'OutdoorItems',
-                          ),
-                        ),
-                        HomeCards(
-                          imagePath: "assets/images/cloths.png",
-                          title: "Cloths",
-                          subText: AppHelpers.getCount(
-                            "Clothing",
-                            state.categoryCounts,
-                          ),
-                          cardBg: Color(0xfff27650),
-                          btnBg: Color(0xfff6d138),
-                          onPress: () => context.push(
-                            state.questionMode == true
-                                ? RoutePaths.exercise
-                                : RoutePaths.detail,
-                            extra: 'Clothing',
-                          ),
-                        ),
-                        HomeCards(
-                          imagePath: "assets/images/home_applainses.png",
-                          title: "Random Things",
-                          subText: AppHelpers.getCount(
-                            "HomeItems",
-                            state.categoryCounts,
-                          ),
-                          cardBg: Color(0xffb6c0fd),
-                          btnBg: Color(0xff468fde),
-                          onPress: () => context.push(
-                            state.questionMode == true
-                                ? RoutePaths.exercise
-                                : RoutePaths.detail,
-                            extra: 'HomeItems',
-                          ),
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: homeCardList.length,
+                          itemBuilder: (context, index) {
+                            final item = homeCardList[index];
+                            if (isJapanese && item.category == 'Alphabet') {
+                              return const SizedBox.shrink();
+                            }
+                            return Padding(
+                              padding: EdgeInsetsGeometry.only(bottom: 20),
+                              child: HomeCards(
+                                imagePath: item.imagePath,
+                                title: item.title,
+                                subText: AppHelpers.getCount(
+                                  item.category,
+                                  state.categoryCounts,
+                                ),
+                                cardBg: item.cardBg,
+                                btnBg: item.btnBg ?? AppColors.primaryBtnBg,
+                                onPress: () => context.push(
+                                  state.questionMode == true
+                                      ? RoutePaths.exercise
+                                      : RoutePaths.detail,
+                                  extra: {
+                                    'category':item.category,
+                                    'index':index
+                                  },
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),

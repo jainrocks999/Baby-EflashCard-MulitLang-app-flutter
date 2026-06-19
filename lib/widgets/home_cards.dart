@@ -6,7 +6,7 @@ class HomeCards extends StatelessWidget {
   final String imagePath;
   final String title;
   final String subText;
-  final Color btnBg;
+  final Color? btnBg;
   final Color cardBg;
   final VoidCallback onPress;
 
@@ -17,15 +17,14 @@ class HomeCards extends StatelessWidget {
     required this.subText,
     required this.cardBg,
     required this.onPress,
-    this.btnBg = AppColors.primaryBtnBg,
-    
+    this.btnBg,
   });
 
   @override
   Widget build(BuildContext context) {
-     final bool isTablet = ResponsiveUtils.isTablet(context);
+    final bool isTablet = ResponsiveUtils.isTablet(context);
     return Container(
-      padding: EdgeInsets.all(ResponsiveUtils.width(context, isTablet ? 2 : 3),),
+      padding: EdgeInsets.all(ResponsiveUtils.width(context, isTablet ? 2 : 3)),
       margin: EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
         color: cardBg,
@@ -43,47 +42,50 @@ class HomeCards extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.only(right: 50),
-            child: Image.asset(imagePath,
-            height: ResponsiveUtils.height(
-                context,
-                isTablet ? 25 : 15,
-              ),
-             width: double.infinity),
+            child: Image.asset(
+              imagePath,
+              height: ResponsiveUtils.height(context, isTablet ? 25 : 15),
+              width: double.infinity,
+            ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontFamily: "BubblegumSans",
-                        fontSize: ResponsiveUtils.fontSize(
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        maxLines: 2,
+                        softWrap: true,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: "BubblegumSans",
+                          fontSize: ResponsiveUtils.fontSize(
                             context,
                             isTablet ? 8 : 7,
                           ),
-                        
-                        fontWeight: FontWeight.w900,
-                        color: AppColors.primaryTxt,
-                        letterSpacing: 1,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.primaryTxt,
+                          letterSpacing: 1,
+                        ),
                       ),
-                    ),
-                    Text(
-                      subText,
-                      style: TextStyle(
-                        fontFamily: "BubblegumSans",
-                        fontSize: ResponsiveUtils.fontSize(
+                      Text(
+                        subText,
+                        style: TextStyle(
+                          fontFamily: "BubblegumSans",
+                          fontSize: ResponsiveUtils.fontSize(
                             context,
                             isTablet ? 3.5 : 4.5,
                           ),
-                        color: AppColors.primaryTxt,
+                          color: AppColors.primaryTxt,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
 
                 SizedBox(
@@ -93,13 +95,15 @@ class HomeCards extends StatelessWidget {
                       backgroundColor: btnBg,
                       elevation: 2,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(ResponsiveUtils.width(context, isTablet? 10:8)),
+                        borderRadius: BorderRadius.circular(
+                          ResponsiveUtils.width(context, isTablet ? 10 : 8),
+                        ),
                       ),
                     ),
                     child: Icon(
                       Icons.arrow_forward_rounded,
                       color: AppColors.primaryTxt,
-                      size:ResponsiveUtils.width(context, isTablet?7:8)
+                      size: ResponsiveUtils.width(context, isTablet ? 7 : 8),
                     ),
                   ),
                 ),

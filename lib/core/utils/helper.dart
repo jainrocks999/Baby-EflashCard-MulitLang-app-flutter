@@ -1,6 +1,7 @@
 // import 'dart:math';
 
 import 'package:baby_flash_apps/screens/setting/settings_screen.dart';
+import 'package:baby_flash_apps/widgets/activity_complete_modal.dart';
 import 'package:flutter/material.dart';
 
 class AppHelpers {
@@ -63,23 +64,6 @@ class AppHelpers {
     return "Total $value Items";
   }
 
-  // static List<Map<String, dynamic>> getRandomItems(
-  //     List<Map<String, dynamic>> data,
-  //     Set<int> usedIndexes, {
-  //     int count = 4,
-  //   }) {
-  //     final available = List.generate(
-  //       data.length,
-  //       (i) => i,
-  //     ).where((i) => !usedIndexes.contains(i)).toList();
-
-  //     available.shuffle();
-  //     final picked = available.take(count).toList();
-  //     usedIndexes.addAll(picked);
-
-  //     return picked.map((i) => data[i]).toList();
-  //   }
-
   static List<Map<String, dynamic>> getRandomItems(
     List<Map<String, dynamic>> data,
     Set<int> usedQuestionIndexes, {
@@ -110,5 +94,17 @@ class AppHelpers {
     final result = [questionIndex, ...options]..shuffle();
 
     return result.map((i) => data[i]).toList();
+  }
+
+  static Future<int> showAfterCompleteActivityModal(
+    BuildContext context,
+    int currentIndex, {
+    VoidCallback? onConfirm,
+  }) async {
+    return await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => ActivityCompleteModal(currentIndex: currentIndex),
+    );
   }
 }
