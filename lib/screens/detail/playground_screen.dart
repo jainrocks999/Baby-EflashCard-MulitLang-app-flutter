@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:baby_flash_apps/ads/banner_ad.dart';
+import 'package:baby_flash_apps/ads/interstitail_ad_service.dart';
 import 'package:baby_flash_apps/core/utils/helper.dart';
 import 'package:baby_flash_apps/core/utils/responsive.dart';
 import 'package:baby_flash_apps/database/db_provider.dart';
@@ -15,7 +17,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class PlaygroundScreen extends ConsumerStatefulWidget {
   final String category;
   final int cateIndex;
-  const PlaygroundScreen({super.key, required this.category,required this.cateIndex});
+  const PlaygroundScreen({
+    super.key,
+    required this.category,
+    required this.cateIndex,
+  });
 
   @override
   ConsumerState<PlaygroundScreen> createState() => _PlaygroundScreenState();
@@ -23,14 +29,57 @@ class PlaygroundScreen extends ConsumerStatefulWidget {
 
 class _PlaygroundScreenState extends ConsumerState<PlaygroundScreen> {
   final GlobalKey<ImageSliderState> sliderKey = GlobalKey();
+
+  final InterstitialAdService _interstitialAdService = InterstitialAdService();
+
+  // int _completedCards = 0;
+
   @override
   void initState() {
     super.initState();
+
+    _interstitialAdService.loadAd();
 
     Future.microtask(() async {
       await ref.read(dbProvider.notifier).fetchData(category: widget.category);
       await ref.read(dbProvider.notifier).loadSoundAndLangSettings();
     });
+  }
+
+  @override
+  void dispose() {
+    _interstitialAdService.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleNextCard() async {
+    final sliderState = sliderKey.currentState;
+
+    if (sliderState == null) return;
+    final currentCard = sliderState.currentIndex + 1;
+    final isLastCard =
+        sliderState.currentIndex >= sliderState.widget.data.length - 1;
+
+    if (isLastCard) {
+      final result = await AppHelpers.showAfterCompleteActivityModal(
+        context,
+        widget.cateIndex,
+      );
+      if (result == 0) {
+        sliderState.resetToFirstPage();
+      }
+      result;
+    }
+    if (currentCard % 10 == 0) {
+      _interstitialAdService.showAd(
+        onAdDismissed: () {
+          if (!mounted) return;
+          sliderState.nextPage();
+        },
+      );
+    } else {
+      sliderState.nextPage();
+    }
   }
 
   @override
@@ -49,93 +98,89 @@ class _PlaygroundScreenState extends ConsumerState<PlaygroundScreen> {
       },
       child: Scaffold(
         body: AppBackground(
-          child: Column(
+          child: Stack(
             children: [
-              const TopBar(showBackButton: true),
-              SizedBox(
-                height: ResponsiveUtils.height(context, isTablet ? 1 : 1),
-              ),
-              ImageSlider(
-                key: sliderKey,
-                data: state.data,
-                isShowLangTxt: state.isShowLangTxt,
-                isSoundOn: state.isSoundOn,
-                isSwpieOn: state.isSwpieOn,
-              ),
-              Spacer(),
-              Row(
-                spacing: 15,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
+              Column(
                 children: [
-                  IconElevatedBtn(
-                    size: ResponsiveUtils.width(context, isTablet ? 18 : 20),
-                    assetPath: 'assets/svgs/left_btn.svg',
-                    onPressed: () {
-                      sliderKey.currentState?.previousPage();
-                    },
+                  const TopBar(showBackButton: true),
+                  SizedBox(
+                    height: ResponsiveUtils.height(context, isTablet ? 1 : 1),
                   ),
-                  ValueListenableBuilder<bool>(
-                    valueListenable:
-                        sliderKey.currentState?.isPlayingNotifier ??
-                        ValueNotifier(false),
-                    builder: (context, isPlaying, child) {
-                      return IconElevatedBtn(
-                        assetPath:
-                            'assets/svgs/${isPlaying ? 'stop_btn' : 'replay_btn'}.svg',
-                        onPressed: () async {
-                          if (state.isSoundOn) {
-                            final stateRef = sliderKey.currentState;
-
-                            if (stateRef != null) {
-                              if (isPlaying) {
-                                await stateRef.stopAudio();
+                  ImageSlider(
+                    key: sliderKey,
+                    data: state.data,
+                    isShowLangTxt: state.isShowLangTxt,
+                    isSoundOn: state.isSoundOn,
+                    isSwpieOn: state.isSwpieOn,
+                  ),
+                  Spacer(),
+                  Row(
+                    spacing: 15,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconElevatedBtn(
+                        size: ResponsiveUtils.width(context, isTablet ? 18 : 20),
+                        assetPath: 'assets/svgs/left_btn.svg',
+                        onPressed: () {
+                          sliderKey.currentState?.previousPage();
+                        },
+                      ),
+                      ValueListenableBuilder<bool>(
+                        valueListenable:
+                            sliderKey.currentState?.isPlayingNotifier ??
+                            ValueNotifier(false),
+                        builder: (context, isPlaying, child) {
+                          return IconElevatedBtn(
+                            assetPath:
+                                'assets/svgs/${isPlaying ? 'stop_btn' : 'replay_btn'}.svg',
+                            onPressed: () async {
+                              if (state.isSoundOn) {
+                                final stateRef = sliderKey.currentState;
+              
+                                if (stateRef != null) {
+                                  if (isPlaying) {
+                                    await stateRef.stopAudio();
+                                  } else {
+                                    await stateRef.playItemAudio(
+                                      stateRef.widget.data[stateRef.currentIndex],
+                                    );
+                                  }
+                                }
                               } else {
-                                await stateRef.playItemAudio(
-                                  stateRef.widget.data[stateRef.currentIndex],
+                                showCustomSnackBar(
+                                  context: context,
+                                  title: "Sound is Off",
+                                  subtitle:
+                                      "Turn on sound in settings to hear the fun sounds 🎵",
+                                  backgroundColor: const Color(0xffb3903e),
+                                  icon: Icons.volume_off,
                                 );
                               }
-                            }
-                          } else {
-                            showCustomSnackBar(
-                              context: context,
-                              title: "Sound is Off",
-                              subtitle:
-                                  "Turn on sound in settings to hear the fun sounds 🎵",
-                              backgroundColor: const Color(0xffb3903e),
-                              icon: Icons.volume_off,
-                            );
-                          }
-                        },
-                        size: ResponsiveUtils.width(
-                          context,
-                          isTablet ? 25 : 28,
-                        ),
-                      );
-                    },
-                  ),
-                  IconElevatedBtn(
-                    size: ResponsiveUtils.width(context, isTablet ? 18 : 20),
-                    assetPath: 'assets/svgs/right_btn.svg',
-                    onPressed: () async {
-                      if (sliderKey.currentState!.currentIndex <
-                          state.data.length - 1) {
-                        sliderKey.currentState?.nextPage();
-                      } else {
-                        final result =
-                            await AppHelpers.showAfterCompleteActivityModal(
+                            },
+                            size: ResponsiveUtils.width(
                               context,
-                              widget.cateIndex,
-                            );
-                        if (result == 0) {
-                          sliderKey.currentState?.resetToFirstPage();
-                        }
-                      }
-                    },
+                              isTablet ? 25 : 28,
+                            ),
+                          );
+                        },
+                      ),
+                      IconElevatedBtn(
+                        size: ResponsiveUtils.width(context, isTablet ? 18 : 20),
+                        assetPath: 'assets/svgs/right_btn.svg',
+                        onPressed: _handleNextCard,
+                      ),
+                    ],
                   ),
+                  Spacer(),
                 ],
               ),
-              Spacer(),
+              Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: const BannerAdSection(),
+                ),
             ],
           ),
         ),

@@ -23,15 +23,24 @@ final GoRouter appRouter = GoRouter(
         final extra = state.extra as Map<String, dynamic>;
 
         final category = extra['category'] as String;
-        final index =extra['index'] as int;
-        
-        return PlaygroundScreen(category: category,cateIndex:index);
+        final index = extra['index'] as int;
+
+        return PlaygroundScreen(category: category, cateIndex: index);
       },
     ),
+    // GoRoute(
+    //   path: RoutePaths.exercise,
+    //   builder: (context, state) {
+    //     final category = state.extra as String;
+    //     return ExerciseScreen(category: category);
+    //   },
+    // ),
     GoRoute(
       path: RoutePaths.exercise,
       builder: (context, state) {
-        final category = state.extra as String;
+        final extra = state.extra as Map<String, dynamic>;
+
+        final category = extra['category'] as String;
         return ExerciseScreen(category: category);
       },
     ),

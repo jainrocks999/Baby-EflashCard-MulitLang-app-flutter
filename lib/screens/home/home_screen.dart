@@ -1,3 +1,4 @@
+import 'package:baby_flash_apps/ads/banner_ad.dart';
 import 'package:baby_flash_apps/core/constants/app_colors.dart';
 import 'package:baby_flash_apps/core/constants/category.dart';
 import 'package:baby_flash_apps/core/utils/helper.dart';
@@ -76,60 +77,69 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
         return Scaffold(
           body: AppBackground(
-            child: Column(
+            child: Stack(
               children: [
-                const TopBar(),
-
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 140),
-                    child: Column(
-                      spacing: 20,
-                      children: [
-                        Container(
-                          margin: EdgeInsets.symmetric(horizontal: 50),
-                          child: Image.asset(
-                            "assets/images/app_name.png",
-                            width: double.infinity,
-                          ),
-                        ),
-
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: homeCardList.length,
-                          itemBuilder: (context, index) {
-                            final item = homeCardList[index];
-                            if (isJapanese && item.category == 'Alphabet') {
-                              return const SizedBox.shrink();
-                            }
-                            return Padding(
-                              padding: EdgeInsetsGeometry.only(bottom: 20),
-                              child: HomeCards(
-                                imagePath: item.imagePath,
-                                title: item.title,
-                                subText: AppHelpers.getCount(
-                                  item.category,
-                                  state.categoryCounts,
-                                ),
-                                cardBg: item.cardBg,
-                                btnBg: item.btnBg ?? AppColors.primaryBtnBg,
-                                onPress: () => context.push(
-                                  state.questionMode == true
-                                      ? RoutePaths.exercise
-                                      : RoutePaths.detail,
-                                  extra: {
-                                    'category':item.category,
-                                    'index':index
-                                  },
-                                ),
+                Column(
+                  children: [
+                    const TopBar(),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 140),
+                        child: Column(
+                          spacing: 20,
+                          children: [
+                            Container(
+                              margin: EdgeInsets.symmetric(horizontal: 50),
+                              child: Image.asset(
+                                "assets/images/app_name.png",
+                                width: double.infinity,
                               ),
-                            );
-                          },
+                            ),
+
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: homeCardList.length,
+                              itemBuilder: (context, index) {
+                                final item = homeCardList[index];
+                                if (isJapanese && item.category == 'Alphabet') {
+                                  return const SizedBox.shrink();
+                                }
+                                return Padding(
+                                  padding: EdgeInsetsGeometry.only(bottom: 20),
+                                  child: HomeCards(
+                                    imagePath: item.imagePath,
+                                    title: item.title,
+                                    subText: AppHelpers.getCount(
+                                      item.category,
+                                      state.categoryCounts,
+                                    ),
+                                    cardBg: item.cardBg,
+                                    btnBg: item.btnBg ?? AppColors.primaryBtnBg,
+                                    onPress: () => context.push(
+                                      state.questionMode == true
+                                          ? RoutePaths.exercise
+                                          : RoutePaths.detail,
+                                      extra: {
+                                        'category': item.category,
+                                        'index': index,
+                                      },
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
+                  ],
+                ),
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: const BannerAdSection(),
                 ),
               ],
             ),

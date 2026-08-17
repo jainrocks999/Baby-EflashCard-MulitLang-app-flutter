@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:baby_flash_apps/ads/banner_ad.dart';
+import 'package:baby_flash_apps/ads/interstitail_ad_service.dart';
 import 'package:baby_flash_apps/core/utils/helper.dart';
 import 'package:baby_flash_apps/core/utils/responsive.dart';
 import 'package:baby_flash_apps/database/db_provider.dart';
@@ -22,22 +24,57 @@ class ExerciseScreen extends ConsumerStatefulWidget {
 
 class _ExerciseScreenState extends ConsumerState<ExerciseScreen> {
   final GlobalKey<ImageGridState> imgGridKey = GlobalKey();
+  final InterstitialAdService _interstitialAdService = InterstitialAdService();
+
   final Set<int> _usedIndexes = {};
   List<Map<String, dynamic>>? cachedRandomItems;
+
+  bool _isAdCompleted = false;
 
   @override
   void initState() {
     super.initState();
+
+    _interstitialAdService.loadAd();
+
     Future.microtask(() async {
       await ref.read(dbProvider.notifier).fetchData(category: widget.category);
       await ref.read(dbProvider.notifier).loadSoundAndLangSettings();
+
+      if (!mounted) return;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+
+        _showInterstitialBeforeActivity();
+      });
     });
+  }
+
+  void _showInterstitialBeforeActivity() {
+    if (_isAdCompleted) return;
+    _interstitialAdService.showAd(
+      onAdDismissed: () {
+        if (!mounted) return;
+
+        setState(() {
+          _isAdCompleted = true;
+        });
+        debugPrint('Ad completed. Starting activity.');
+      },
+    );
   }
 
   void _loadNextQuestion() {
     setState(() {
       cachedRandomItems = null;
     });
+  }
+
+  @override
+  void dispose() {
+    _interstitialAdService.dispose();
+    super.dispose();
   }
 
   @override
@@ -62,7 +99,7 @@ class _ExerciseScreenState extends ConsumerState<ExerciseScreen> {
     final langName = AppHelpers.getLanguageFolder(
       randomItems[0]['language_name'],
     );
-   final bool isTablet = ResponsiveUtils.isTablet(context);
+    final bool isTablet = ResponsiveUtils.isTablet(context);
 
     return PopScope(
       canPop: true,
@@ -73,81 +110,120 @@ class _ExerciseScreenState extends ConsumerState<ExerciseScreen> {
       },
       child: Scaffold(
         body: AppBackground(
-          child: Column(
+          child: Stack(
             children: [
-              const TopBar(showBackButton: true),
+              Column(
+                children: [
+                  const TopBar(showBackButton: true),
 
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 18, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.amber[200],
-                  borderRadius: BorderRadius.circular(ResponsiveUtils.width(context, isTablet ? 2 : 4)),
-                  border: Border.all(width: 1, color: Colors.amber),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 5,
-                      offset: const Offset(0, 2),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.amber[200],
+                      borderRadius: BorderRadius.circular(
+                        ResponsiveUtils.width(context, isTablet ? 2 : 4),
+                      ),
+                      border: Border.all(width: 1, color: Colors.amber),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 5,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: Text(
-                  'Fun with ${randomItems[0]['category']}',
-                  style: TextStyle(
-                    color: Colors.black54,
-                    // fontSize: 14,
-                    fontSize: ResponsiveUtils.fontSize(context, isTablet ? 5 : 4.4),
-                    fontFamily: 'Fredoka',
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-
-              Spacer(),
-              Container(
-                // padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveUtils.width(context, isTablet ? 3 : 5.5),
-            vertical: ResponsiveUtils.height(context, isTablet ? 1 : 1.5),
-          ),
-                decoration: BoxDecoration(
-                  color: Color(0xffb3eafd),
-                  borderRadius: BorderRadius.circular(ResponsiveUtils.width(context, isTablet ? 2 : 4)),
-                  border: Border.all(
-                    width: 2,
-                    color: Colors.white.withAlpha(150),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 5,
-                      offset: const Offset(0, 2),
+                    child: Text(
+                      'Fun with ${randomItems[0]['category']}',
+                      style: TextStyle(
+                        color: Colors.black54,
+                        // fontSize: 14,
+                        fontSize: ResponsiveUtils.fontSize(
+                          context,
+                          isTablet ? 5 : 4.4,
+                        ),
+                        fontFamily: 'Fredoka',
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                  ],
-                ),
-                child: Text(
-                  langName == 'english'
-                      ? 'Click on ${randomItems[0]['sound'].replaceAll('.mp3', '')}?'
-                      : 'Click on ${randomItems[0]['word']}?',
-                  style: TextStyle(
-                    color: Colors.black54,
-                    // fontSize: 16,
-                    fontSize: ResponsiveUtils.fontSize(context, isTablet ? 5 : 4.8),
-                    fontFamily: 'Fredoka',
-                    fontWeight: FontWeight.w700,
                   ),
-                ),
-              ),
 
-              SizedBox(height: ResponsiveUtils.height(context, isTablet ? 1 : 2.5)),
+                  Spacer(),
+                  Container(
+                    // padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: ResponsiveUtils.width(
+                        context,
+                        isTablet ? 3 : 5.5,
+                      ),
+                      vertical: ResponsiveUtils.height(
+                        context,
+                        isTablet ? 1 : 1.5,
+                      ),
+                    ),
+                    decoration: BoxDecoration(
+                      color: Color(0xffb3eafd),
+                      borderRadius: BorderRadius.circular(
+                        ResponsiveUtils.width(context, isTablet ? 2 : 4),
+                      ),
+                      border: Border.all(
+                        width: 2,
+                        color: Colors.white.withAlpha(150),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 5,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      langName == 'english'
+                          ? 'Click on ${randomItems[0]['sound'].replaceAll('.mp3', '')}?'
+                          : 'Click on ${randomItems[0]['word']}?',
+                      style: TextStyle(
+                        color: Colors.black54,
+                        // fontSize: 16,
+                        fontSize: ResponsiveUtils.fontSize(
+                          context,
+                          isTablet ? 5 : 4.8,
+                        ),
+                        fontFamily: 'Fredoka',
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
 
-              ImageGrid(
-                key: ValueKey(randomItems[0]['title']),
-                data: randomItems,
-                onCorrectAnswer: _loadNextQuestion,
-                isSoundOn: state.isSoundOn,
+                  SizedBox(
+                    height: ResponsiveUtils.height(context, isTablet ? 1 : 2.5),
+                  ),
+
+                  // ImageGrid(
+                  //   key: ValueKey(randomItems[0]['title']),
+                  //   data: randomItems,
+                  //   onCorrectAnswer: _loadNextQuestion,
+                  //   isSoundOn: state.isSoundOn,
+                  // ),
+                  if (_isAdCompleted)
+                    ImageGrid(
+                      key: ValueKey(randomItems[0]['title']),
+                      data: randomItems,
+                      onCorrectAnswer: _loadNextQuestion,
+                      isSoundOn: state.isSoundOn,
+                    ),
+                  if (!_isAdCompleted)
+                    const Expanded(
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                  Spacer(),
+                ],
               ),
-              Spacer(),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: const BannerAdSection(),
+              ),
             ],
           ),
         ),
@@ -471,13 +547,15 @@ class ImageGridState extends State<ImageGrid> {
             elevation: 5,
             shadowColor: Colors.black26,
             // padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-             padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveUtils.width(context, isTablet ? 2 : 3),
-            vertical: ResponsiveUtils.height(context, isTablet ? 1 : 0.5),
-          ),
+            padding: EdgeInsets.symmetric(
+              horizontal: ResponsiveUtils.width(context, isTablet ? 2 : 3),
+              vertical: ResponsiveUtils.height(context, isTablet ? 1 : 0.5),
+            ),
             shape: RoundedRectangleBorder(
               // borderRadius: BorderRadius.circular(50),
-              borderRadius: BorderRadius.circular(ResponsiveUtils.width(context, isTablet ? 2 : 7)),
+              borderRadius: BorderRadius.circular(
+                ResponsiveUtils.width(context, isTablet ? 2 : 7),
+              ),
               side: BorderSide(color: Color(0xff5fbca4), width: 3),
             ),
           ),
@@ -488,14 +566,8 @@ class ImageGridState extends State<ImageGrid> {
             children: [
               SvgPicture.asset(
                 "assets/svgs/replay_btn.svg",
-                width: ResponsiveUtils.width(
-                        context,
-                        isTablet ? 10 : 17,
-                      ),
-                height: ResponsiveUtils.width(
-                        context,
-                        isTablet ? 10 : 17,
-                      ),
+                width: ResponsiveUtils.width(context, isTablet ? 10 : 17),
+                height: ResponsiveUtils.width(context, isTablet ? 10 : 17),
               ),
 
               Text(
