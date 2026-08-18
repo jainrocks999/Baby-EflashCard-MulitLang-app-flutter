@@ -74,7 +74,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             _openLanguageModal(state.language);
           });
         }
-
         return Scaffold(
           body: AppBackground(
             child: Stack(
@@ -139,7 +138,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  child: const BannerAdSection(),
+                  child: Center(child: const BannerAdSection()),
                 ),
               ],
             ),

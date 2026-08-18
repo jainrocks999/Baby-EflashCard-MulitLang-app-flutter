@@ -179,7 +179,7 @@ class _PlaygroundScreenState extends ConsumerState<PlaygroundScreen> {
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  child: const BannerAdSection(),
+                  child: Center(child: const BannerAdSection()),
                 ),
             ],
           ),

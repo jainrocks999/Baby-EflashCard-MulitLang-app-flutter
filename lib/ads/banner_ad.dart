@@ -16,29 +16,47 @@ class _BannerAdSectionState extends State<BannerAdSection> {
   @override
   void initState() {
     super.initState();
+    _loadBannerAd();
+  }
 
-    _bannerAd = BannerAd(
-      adUnitId: AdsUnitKey.bannerAdId,
+  void _loadBannerAd() {
+    final banner = BannerAd(
       size: AdSize.banner,
+      adUnitId: AdsUnitKey.bannerAdId,
       request: const AdRequest(),
       listener: BannerAdListener(
         onAdLoaded: (ad) {
+          if (!mounted) {
+            ad.dispose();
+            return;
+          }
           setState(() {
+            _bannerAd = ad as BannerAd;
             _isLoaded = true;
           });
         },
+
         onAdFailedToLoad: (ad, error) {
-          ad.dispose();
           debugPrint('Banner ad failed: $error');
+          ad.dispose();
+
+          if (!mounted) return;
+
+          setState(() {
+            _bannerAd = null;
+            _isLoaded = false;
+          });
         },
       ),
-    )..load();
+    );
+    _bannerAd = banner;
+    banner.load();
   }
 
   @override
   void dispose() {
-    super.dispose();
     _bannerAd?.dispose();
+    _bannerAd = null;
     super.dispose();
   }
 

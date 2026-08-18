@@ -26,11 +26,16 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         _controller.play();
       });
 
+    // _controller.addListener(() {
+    //   if (_controller.value.position >= _controller.value.duration) {
+    //     if (mounted) {
+    //       context.go(RoutePaths.home);
+    //     }
+    //   }
+    // });
     _controller.addListener(() {
-      if (_controller.value.position >= _controller.value.duration) {
-        if (mounted) {
-          context.go(RoutePaths.home);
-        }
+      if (_controller.value.isCompleted && mounted) {
+        context.go(RoutePaths.home);
       }
     });
   }
