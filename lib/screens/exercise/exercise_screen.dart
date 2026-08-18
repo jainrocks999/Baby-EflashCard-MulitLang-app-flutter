@@ -100,7 +100,8 @@ class _ExerciseScreenState extends ConsumerState<ExerciseScreen> {
       randomItems[0]['language_name'],
     );
     final bool isTablet = ResponsiveUtils.isTablet(context);
-
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (didPop, result) {
@@ -117,7 +118,17 @@ class _ExerciseScreenState extends ConsumerState<ExerciseScreen> {
                   const TopBar(showBackButton: true),
 
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+                    // padding: EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: ResponsiveUtils.width(
+                        context,
+                        isTablet ? 5 : 5.5,
+                      ),
+                      vertical: ResponsiveUtils.height(
+                        context,
+                        isTablet ? 1 : 1.5,
+                      ),
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.amber[200],
                       borderRadius: BorderRadius.circular(
@@ -139,10 +150,15 @@ class _ExerciseScreenState extends ConsumerState<ExerciseScreen> {
                         // fontSize: 14,
                         fontSize: ResponsiveUtils.fontSize(
                           context,
-                          isTablet ? 5 : 4.4,
+                          // isTablet ? 5 : 4.4,
+                          isTablet
+                              ? isLandscape
+                                    ? 2.2
+                                    : 5
+                              : 4.5,
                         ),
                         fontFamily: 'Fredoka',
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
@@ -186,7 +202,12 @@ class _ExerciseScreenState extends ConsumerState<ExerciseScreen> {
                         // fontSize: 16,
                         fontSize: ResponsiveUtils.fontSize(
                           context,
-                          isTablet ? 5 : 4.8,
+                          // isTablet ? 5 : 4.8,
+                          isTablet
+                              ? isLandscape
+                                    ? 2
+                                    : 3
+                              : 4.5,
                         ),
                         fontFamily: 'Fredoka',
                         fontWeight: FontWeight.w700,
@@ -417,20 +438,33 @@ class ImageGridState extends State<ImageGrid> {
   @override
   Widget build(BuildContext context) {
     final bool isTablet = ResponsiveUtils.isTablet(context);
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveUtils.widthPercent(
+              context,
+              isLandscape ? 15 : 3,
+            ),
+          ),
           child: GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: shuffledData.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              crossAxisSpacing: 15,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1,
-              // childAspectRatio: 0.85,
+              crossAxisSpacing: ResponsiveUtils.widthPercent(context, 4),
+              mainAxisSpacing: ResponsiveUtils.heightPercent(context, 3),
+              childAspectRatio: ResponsiveUtils.fontSize(
+                context,
+                isTablet
+                    ? isLandscape
+                          ? 0.22
+                          : 0.20
+                    : 0.25,
+              ),
             ),
             itemBuilder: (context, index) {
               String itemImg = shuffledData[index]["image"];

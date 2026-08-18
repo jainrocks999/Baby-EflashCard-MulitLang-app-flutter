@@ -16,25 +16,28 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final current = GoRouterState.of(context).path;
-    final isDetail =  (current?.contains(RoutePaths.detail) ?? false) ||
-    (current?.contains(RoutePaths.exercise) ?? false);
+    final isDetail =
+        (current?.contains(RoutePaths.detail) ?? false) ||
+        (current?.contains(RoutePaths.exercise) ?? false);
 
     final bool isTablet = ResponsiveUtils.isTablet(context);
 
     return AppBar(
       // toolbarHeight: 75,
-      toolbarHeight: ResponsiveUtils.height(context, isTablet ? 9 : 9),
+      toolbarHeight: ResponsiveUtils.height(context, isTablet ? 12 : 9),
       backgroundColor: Colors.transparent,
       scrolledUnderElevation: 0,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       automaticallyImplyLeading: false,
-      leadingWidth: showBackButton ? ResponsiveUtils.width(context, isTablet?15:20) : null,
+      leadingWidth: showBackButton
+          ? ResponsiveUtils.width(context, isTablet ? 15 : 20)
+          : null,
       leading: showBackButton
           ? Padding(
               padding: const EdgeInsets.only(left: 15),
               child: IconElevatedBtn(
-                size: ResponsiveUtils.width(context, isTablet  ? 14:16),
+                size: ResponsiveUtils.width(context, isTablet ? 10 : 16),
                 assetPath: 'assets/svgs/back_btn.svg',
                 onPressed: () {
                   Navigator.of(context).maybePop();
@@ -46,7 +49,7 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         if (!isDetail)
           IconElevatedBtn(
-            size: ResponsiveUtils.width(context, isTablet  ? 15:17),
+            size: ResponsiveUtils.width(context, isTablet ? 12 : 18),
             assetPath: 'assets/svgs/setting_btn.svg',
             onPressed: () {
               AppHelpers.showSettingModal(context);

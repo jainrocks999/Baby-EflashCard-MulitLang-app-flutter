@@ -89,6 +89,8 @@ class _PlaygroundScreenState extends ConsumerState<PlaygroundScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     final bool isTablet = ResponsiveUtils.isTablet(context);
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (didPop, result) {
@@ -104,7 +106,7 @@ class _PlaygroundScreenState extends ConsumerState<PlaygroundScreen> {
                 children: [
                   const TopBar(showBackButton: true),
                   SizedBox(
-                    height: ResponsiveUtils.height(context, isTablet ? 1 : 1),
+                    height: ResponsiveUtils.height(context, isTablet ? 0 : 1),
                   ),
                   ImageSlider(
                     key: sliderKey,
@@ -120,7 +122,14 @@ class _PlaygroundScreenState extends ConsumerState<PlaygroundScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       IconElevatedBtn(
-                        size: ResponsiveUtils.width(context, isTablet ? 18 : 20),
+                        size: ResponsiveUtils.width(
+                          context,
+                          isTablet
+                              ? isLandscape
+                                    ? 9
+                                    : 14
+                              : 20,
+                        ),
                         assetPath: 'assets/svgs/left_btn.svg',
                         onPressed: () {
                           sliderKey.currentState?.previousPage();
@@ -137,13 +146,14 @@ class _PlaygroundScreenState extends ConsumerState<PlaygroundScreen> {
                             onPressed: () async {
                               if (state.isSoundOn) {
                                 final stateRef = sliderKey.currentState;
-              
+
                                 if (stateRef != null) {
                                   if (isPlaying) {
                                     await stateRef.stopAudio();
                                   } else {
                                     await stateRef.playItemAudio(
-                                      stateRef.widget.data[stateRef.currentIndex],
+                                      stateRef.widget.data[stateRef
+                                          .currentIndex],
                                     );
                                   }
                                 }
@@ -160,13 +170,24 @@ class _PlaygroundScreenState extends ConsumerState<PlaygroundScreen> {
                             },
                             size: ResponsiveUtils.width(
                               context,
-                              isTablet ? 25 : 28,
+                              isTablet
+                                  ? isLandscape
+                                        ? 14
+                                        : 20
+                                  : 28,
                             ),
                           );
                         },
                       ),
                       IconElevatedBtn(
-                        size: ResponsiveUtils.width(context, isTablet ? 18 : 20),
+                        size: ResponsiveUtils.width(
+                          context,
+                          isTablet
+                              ? isLandscape
+                                    ? 9
+                                    : 14
+                              : 20,
+                        ),
                         assetPath: 'assets/svgs/right_btn.svg',
                         onPressed: _handleNextCard,
                       ),
@@ -176,11 +197,11 @@ class _PlaygroundScreenState extends ConsumerState<PlaygroundScreen> {
                 ],
               ),
               Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: Center(child: const BannerAdSection()),
-                ),
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Center(child: const BannerAdSection()),
+              ),
             ],
           ),
         ),
@@ -381,12 +402,14 @@ class ImageSliderState extends State<ImageSlider> {
   @override
   Widget build(BuildContext context) {
     final bool isTablet = ResponsiveUtils.isTablet(context);
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
     return Column(
-      spacing: ResponsiveUtils.height(context, isTablet ? 2 : 4),
+      spacing: ResponsiveUtils.height(context, isTablet ? 1.5 : 4),
       children: [
         Container(
           padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveUtils.width(context, isTablet ? 3 : 5.5),
+            horizontal: ResponsiveUtils.width(context, isTablet ? 5 : 5.5),
             vertical: ResponsiveUtils.height(context, isTablet ? 1 : 1.5),
           ),
           decoration: BoxDecoration(
@@ -394,7 +417,10 @@ class ImageSliderState extends State<ImageSlider> {
             borderRadius: BorderRadius.circular(
               ResponsiveUtils.width(context, isTablet ? 2 : 4),
             ),
-            border: Border.all(width: 2, color: Colors.amber),
+            border: Border.all(
+              width: ResponsiveUtils.width(context, 0.8),
+              color: Colors.amber,
+            ),
             boxShadow: [
               BoxShadow(
                 color: Colors.black26,
@@ -407,7 +433,14 @@ class ImageSliderState extends State<ImageSlider> {
             '${currentIndex + 1}/${widget.data.length}',
             style: TextStyle(
               color: Colors.black54,
-              fontSize: ResponsiveUtils.fontSize(context, isTablet ? 5 : 5.5),
+              fontSize: ResponsiveUtils.fontSize(
+                context,
+                isTablet
+                    ? isLandscape
+                          ? 2.2
+                          : 5
+                    : 5.5,
+              ),
               fontFamily: 'Fredoka',
               fontWeight: FontWeight.w700,
             ),
@@ -447,7 +480,11 @@ class ImageSliderState extends State<ImageSlider> {
                           color: Colors.black54,
                           fontSize: ResponsiveUtils.fontSize(
                             context,
-                            isTablet ? 3 : 4.5,
+                            isTablet
+                                ? isLandscape
+                                      ? 2
+                                      : 3
+                                : 4.5,
                           ),
                           fontFamily: 'Fredoka',
                           fontWeight: FontWeight.w700,
@@ -458,8 +495,22 @@ class ImageSliderState extends State<ImageSlider> {
             : SizedBox(height: 57),
 
         SizedBox(
-          height: ResponsiveUtils.height(context, isTablet ? 48 : 40),
-          width: ResponsiveUtils.width(context, isTablet ? 85 : 88),
+          height: ResponsiveUtils.height(
+            context,
+            isTablet
+                ? isLandscape
+                      ? 40
+                      : 42
+                : 40,
+          ),
+          width: ResponsiveUtils.width(
+            context,
+            isTablet
+                ? isLandscape
+                      ? 40
+                      : 75
+                : 88,
+          ),
           child: GestureDetector(
             onHorizontalDragStart: (_) {
               if (!widget.isSwpieOn) {
@@ -508,7 +559,13 @@ class ImageSliderState extends State<ImageSlider> {
                   }
 
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isTablet
+                          ? isLandscape
+                                ? 30
+                                : 55
+                          : 20,
+                    ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(15),
                       child: Image.asset(

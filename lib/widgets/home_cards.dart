@@ -25,7 +25,9 @@ class HomeCards extends StatelessWidget {
     final bool isTablet = ResponsiveUtils.isTablet(context);
     return Container(
       padding: EdgeInsets.all(ResponsiveUtils.width(context, isTablet ? 2 : 3)),
-      margin: EdgeInsets.symmetric(horizontal: 20),
+      margin: EdgeInsets.symmetric(
+        horizontal: ResponsiveUtils.width(context, isTablet ? 2 : 3),
+      ),
       decoration: BoxDecoration(
         color: cardBg,
         borderRadius: BorderRadius.all(Radius.circular(18)),
@@ -39,15 +41,17 @@ class HomeCards extends StatelessWidget {
         ],
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Padding(
             padding: const EdgeInsets.only(right: 50),
             child: Image.asset(
               imagePath,
-              height: ResponsiveUtils.height(context, isTablet ? 25 : 15),
-              width: double.infinity,
+              // height: ResponsiveUtils.height(context, 15),
+              // width: double.infinity,
             ),
           ),
+          // Spacer(),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15),
             child: Row(
@@ -66,7 +70,7 @@ class HomeCards extends StatelessWidget {
                           fontFamily: "BubblegumSans",
                           fontSize: ResponsiveUtils.fontSize(
                             context,
-                            isTablet ? 8 : 7,
+                            isTablet ? 5 : 7,
                           ),
                           fontWeight: FontWeight.w900,
                           color: AppColors.primaryTxt,
@@ -79,7 +83,7 @@ class HomeCards extends StatelessWidget {
                           fontFamily: "BubblegumSans",
                           fontSize: ResponsiveUtils.fontSize(
                             context,
-                            isTablet ? 3.5 : 4.5,
+                            isTablet ? 2.5 : 4.5,
                           ),
                           color: AppColors.primaryTxt,
                         ),
@@ -103,7 +107,7 @@ class HomeCards extends StatelessWidget {
                     child: Icon(
                       Icons.arrow_forward_rounded,
                       color: AppColors.primaryTxt,
-                      size: ResponsiveUtils.width(context, isTablet ? 7 : 8),
+                      size: ResponsiveUtils.width(context, isTablet ? 5 : 8),
                     ),
                   ),
                 ),

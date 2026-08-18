@@ -10,7 +10,7 @@ class SettingContainer extends StatelessWidget {
   const SettingContainer({
     super.key,
     required this.child,
-    this.padding = const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+    this.padding = const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
     this.margin = const EdgeInsets.symmetric(vertical: 10),
     this.color = Colors.white,
     this.borderRadius = 20,

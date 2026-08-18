@@ -11,6 +11,8 @@ class CustomSwitch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isTablet = ResponsiveUtils.isTablet(context);
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
 
     return GestureDetector(
       onTap: () {
@@ -20,9 +22,9 @@ class CustomSwitch extends StatelessWidget {
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
-        width: ResponsiveUtils.width(context, isTablet?12:15),
+        width: ResponsiveUtils.width(context, isTablet?isLandscape? 11:12:15),
         
-        height: ResponsiveUtils.height(context, isTablet?4:4.5),
+        height: ResponsiveUtils.height(context, isTablet? isLandscape? 6 : 4:4.5),
         decoration: BoxDecoration(
           color: value ? const Color(0xff7ED957) : const Color(0xffD9D9D9),
           borderRadius: BorderRadius.circular(ResponsiveUtils.width(context, isTablet?1:2)),
@@ -68,8 +70,8 @@ class CustomSwitch extends StatelessWidget {
               right: value ? ResponsiveUtils.width(context, isTablet?1:1.3) : ResponsiveUtils.width(context, isTablet?6:7.8),
 
               child: Container(
-               width: ResponsiveUtils.width(context, isTablet?9:7.8),
-                height: ResponsiveUtils.height(context, isTablet?3.2:3.0),
+               width: ResponsiveUtils.width(context, isTablet? 19:7.8),
+                height: ResponsiveUtils.height(context, isTablet? isLandscape?5: 3.2:3.0),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(ResponsiveUtils.width(context, isTablet?1:1.5)),

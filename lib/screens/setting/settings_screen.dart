@@ -60,9 +60,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
           },
           child: Dialog(
             backgroundColor: Colors.transparent,
-            insetPadding: EdgeInsets.all(20),
+            insetPadding: EdgeInsets.all(
+              ResponsiveUtils.width(context, isTablet ? 15 : 4),
+            ),
             child: Container(
-              padding: EdgeInsets.symmetric(vertical: 25, horizontal: 10),
+              padding: EdgeInsets.symmetric(
+                vertical: ResponsiveUtils.height(context, isTablet ? 4 : 2),
+                horizontal: ResponsiveUtils.width(context, 3),
+              ),
               decoration: BoxDecoration(
                 color: Color(0xfff7cd89),
                 borderRadius: BorderRadius.circular(20),
@@ -70,13 +75,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  spacing: ResponsiveUtils.height(context, isTablet?1:0.2),
+                  spacing: ResponsiveUtils.height(context, isTablet ? 1 : 0.2),
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       spacing: 5,
                       children: [
-                        Icon(Icons.settings, color: Color(0xff825c2f), size:ResponsiveUtils.width(context, isTablet?5:6)),
+                        Icon(
+                          Icons.settings,
+                          color: Color(0xff825c2f),
+                          size: ResponsiveUtils.width(
+                            context,
+                            isTablet ? 5 : 6,
+                          ),
+                        ),
                         Text(
                           'Setting'.toUpperCase(),
                           style: TextStyle(
@@ -98,10 +110,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                     SettingContainer(
+                      margin: EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: ResponsiveUtils.width(
+                          context,
+                          isTablet ? 1 : 0,
+                        ),
+                      ),
                       child: Column(
+                        spacing: ResponsiveUtils.height(
+                          context,
+                          isTablet ? 3 : 1.5,
+                        ),
                         children: [
                           _RowDropdown(questionMode: questionMode),
-                
                           Opacity(
                             opacity: questionMode ? 0.5 : 1,
                             child: _SwitchRow(
@@ -120,8 +142,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                     SettingContainer(
+                      margin: EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: ResponsiveUtils.width(
+                          context,
+                          isTablet ? 1 : 0,
+                        ),
+                      ),
                       child: Column(
-                        spacing: 15,
+                        spacing: ResponsiveUtils.height(
+                          context,
+                          isTablet ? 3 : 1.5,
+                        ),
                         children: [
                           _SwitchRow(
                             icon: Icons.music_note_rounded,
@@ -136,7 +168,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             icon: Icons.graphic_eq_rounded,
                             title: "Sound",
                             value: sound,
-                
+
                             onChanged: (val) async {
                               setState(() => sound = val);
                               await SecureStorage.setSound(val);
@@ -146,8 +178,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                     SettingContainer(
+                      margin: EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: ResponsiveUtils.width(
+                          context,
+                          isTablet ? 1 : 0,
+                        ),
+                      ),
                       child: Column(
-                        spacing: 15,
+                        spacing: ResponsiveUtils.height(
+                          context,
+                          isTablet ? 3 : 1.5,
+                        ),
                         children: [
                           _SwitchRow(
                             title: "Question mode",
@@ -159,7 +201,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ref.read(dbProvider.notifier).loadQuestionMode();
                             },
                           ),
-                
+
                           Opacity(
                             opacity: questionMode ? 0.5 : 1,
                             child: _SwitchRow(
@@ -174,7 +216,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     },
                             ),
                           ),
-                
+
                           Opacity(
                             opacity: questionMode ? 0.5 : 1,
                             child: _SwitchRow(
@@ -191,24 +233,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      spacing: 10,
-                      children: [
-                        Expanded(
-                          child: CommonButton(
-                            text: "Close",
-                            onPressed: () async {
-                              await ref
-                                  .read(dbProvider.notifier)
-                                  .loadSoundAndLangSettings();
-                              if (!context.mounted) return;
-                              Navigator.pop(context);
-                            },
-                          ),
+                    SizedBox(height: 10),
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: ResponsiveUtils.width(
+                          context,
+                          isTablet ? 1 : 0,
                         ),
-                      ],
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        spacing: 10,
+                        children: [
+                          Expanded(
+                            child: CommonButton(
+                              fontSize: ResponsiveUtils.fontSize(
+                                context,
+                                isTablet ? 5 : 5.5,
+                              ),
+                              text: "Close",
+                              onPressed: () async {
+                                await ref
+                                    .read(dbProvider.notifier)
+                                    .loadSoundAndLangSettings();
+                                if (!context.mounted) return;
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -267,7 +321,10 @@ class _RowDropdownState extends ConsumerState<_RowDropdown> {
         Row(
           spacing: 5,
           children: [
-            Icon(Icons.translate_rounded, size: ResponsiveUtils.fontSize(context, isTablet ? 3.8 : 5)),
+            Icon(
+              Icons.translate_rounded,
+              size: ResponsiveUtils.fontSize(context, isTablet ? 3.8 : 5),
+            ),
             Text(
               "Language",
               style: TextStyle(
@@ -282,7 +339,10 @@ class _RowDropdownState extends ConsumerState<_RowDropdown> {
         DropdownButton<String>(
           value: state.language,
           underline: const SizedBox(),
-          icon: Icon(Icons.keyboard_arrow_down,size: ResponsiveUtils.width(context, isTablet?3.5:4.8),),
+          icon: Icon(
+            Icons.keyboard_arrow_down,
+            size: ResponsiveUtils.width(context, isTablet ? 3.5 : 4.8),
+          ),
           dropdownColor: Color(0xfff7cd89),
           borderRadius: BorderRadius.circular(20),
           style: TextStyle(
@@ -333,7 +393,12 @@ class _SwitchRow extends StatelessWidget {
         Row(
           spacing: 5,
           children: [
-            icon != null ? Icon(icon, size: ResponsiveUtils.width(context, isTablet?3.5:4.8)) : SizedBox(),
+            icon != null
+                ? Icon(
+                    icon,
+                    size: ResponsiveUtils.width(context, isTablet ? 3.5 : 4.8),
+                  )
+                : SizedBox(),
             Text(
               title,
               style: TextStyle(
