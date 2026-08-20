@@ -72,11 +72,12 @@ class _PlaygroundScreenState extends ConsumerState<PlaygroundScreen> {
     }
     if (currentCard % 10 == 0) {
       _interstitialAdService.showAd(
-        onAdDismissed: () {
-          if (!mounted) return;
-          sliderState.nextPage();
-        },
+        // onAdDismissed: () {
+        //   if (!mounted) return;
+        //   sliderState.nextPage();
+        // },
       );
+      sliderState.nextPage();
     } else {
       sliderState.nextPage();
     }

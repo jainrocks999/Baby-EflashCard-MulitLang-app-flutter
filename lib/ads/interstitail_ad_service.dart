@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:baby_flash_apps/core/constants/ads_unit_key.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -16,7 +18,9 @@ class InterstitialAdService {
     _isLoading = true;
 
     InterstitialAd.load(
-      adUnitId: AdsUnitKey.interstitalAdId,
+      adUnitId: Platform.isIOS?
+       AdsUnitKey.interstitalAdIdIOS
+      : AdsUnitKey.interstitalAdId,
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {

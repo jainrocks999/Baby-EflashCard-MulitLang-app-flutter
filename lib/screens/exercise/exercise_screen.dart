@@ -57,9 +57,9 @@ class _ExerciseScreenState extends ConsumerState<ExerciseScreen> {
       onAdDismissed: () {
         if (!mounted) return;
 
-        setState(() {
-          _isAdCompleted = true;
-        });
+        // setState(() {
+        //   _isAdCompleted = true;
+        // });
         debugPrint('Ad completed. Starting activity.');
       },
     );
@@ -225,17 +225,17 @@ class _ExerciseScreenState extends ConsumerState<ExerciseScreen> {
                   //   onCorrectAnswer: _loadNextQuestion,
                   //   isSoundOn: state.isSoundOn,
                   // ),
-                  if (_isAdCompleted)
-                    ImageGrid(
-                      key: ValueKey(randomItems[0]['title']),
-                      data: randomItems,
-                      onCorrectAnswer: _loadNextQuestion,
-                      isSoundOn: state.isSoundOn,
-                    ),
-                  if (!_isAdCompleted)
-                    const Expanded(
-                      child: Center(child: CircularProgressIndicator()),
-                    ),
+                  // if (_isAdCompleted)
+                  ImageGrid(
+                    key: ValueKey(randomItems[0]['title']),
+                    data: randomItems,
+                    onCorrectAnswer: _loadNextQuestion,
+                    isSoundOn: state.isSoundOn,
+                  ),
+                  // if (!_isAdCompleted)
+                  //   const Expanded(
+                  //     child: Center(child: CircularProgressIndicator()),
+                  //   ),
                   Spacer(),
                 ],
               ),
@@ -456,14 +456,14 @@ class ImageGridState extends State<ImageGrid> {
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               crossAxisSpacing: ResponsiveUtils.widthPercent(context, 4),
-              mainAxisSpacing: ResponsiveUtils.heightPercent(context, 3),
+              mainAxisSpacing: ResponsiveUtils.heightPercent(context, isTablet? 3 : 2),
               childAspectRatio: ResponsiveUtils.fontSize(
                 context,
                 isTablet
                     ? isLandscape
                           ? 0.22
                           : 0.20
-                    : 0.25,
+                    : 0.30,
               ),
             ),
             itemBuilder: (context, index) {
@@ -484,76 +484,80 @@ class ImageGridState extends State<ImageGrid> {
 
               return GestureDetector(
                 onTap: () => onItemTap(index),
-                child: Stack(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: selectedIndex == null
-                              ? Colors.grey.shade300
-                              : isCorrect == true
-                              ? (index == correctIndex
-                                    ? Colors.green
-                                    : Colors.grey.shade300)
-                              : (index == selectedIndex
-                                    ? Colors.red
-                                    : Colors.grey.shade300),
-                          width: 3,
-                        ),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 6,
-                            offset: Offset(0, 3),
-                          ),
-                        ],
+                child: Center(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: selectedIndex == null
+                            ? Colors.grey.shade300
+                            : isCorrect == true
+                            ? (index == correctIndex
+                                  ? Colors.green
+                                  : Colors.grey.shade300)
+                            : (index == selectedIndex
+                                  ? Colors.red
+                                  : Colors.grey.shade300),
+                        width: 3,
                       ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(17),
-                        child: Image.asset(
-                          'assets/files/$itemImg',
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          height: double.infinity,
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 6,
+                          offset: Offset(0, 3),
                         ),
-                      ),
+                      ],
                     ),
 
-                    /// Icons
-                    if (selectedIndex != null)
-                      Positioned.fill(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: isCorrect == true
-                                ? (index == correctIndex
-                                      ? Colors.green.withAlpha(81)
-                                      : Colors.transparent)
-                                : (index == selectedIndex
-                                      ? Colors.red.withAlpha(81)
-                                      : Colors.transparent),
-                            borderRadius: BorderRadius.circular(20),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(17),
+                      child: Stack(
+                        clipBehavior: Clip.hardEdge,
+                        children: [
+                          /// Image
+                          Image.asset(
+                            'assets/files/$itemImg',
+                            fit: BoxFit.cover,
+                            width: isTablet ? null : double.infinity,
+                            height: isTablet ? null : double.infinity,
                           ),
-                          child: Center(
-                            child: isCorrect == true
-                                ? (index == correctIndex
-                                      ? const Icon(
-                                          Icons.check_circle,
-                                          color: Colors.green,
-                                          size: 50,
-                                        )
-                                      : null)
-                                : (index == selectedIndex
-                                      ? const Icon(
-                                          Icons.cancel,
-                                          color: Colors.red,
-                                          size: 50,
-                                        )
-                                      : null),
-                          ),
-                        ),
+
+                          /// Icons / overlay
+                          if (selectedIndex != null)
+                            Positioned.fill(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: isCorrect == true
+                                      ? (index == correctIndex
+                                            ? Colors.green.withAlpha(81)
+                                            : Colors.transparent)
+                                      : (index == selectedIndex
+                                            ? Colors.red.withAlpha(81)
+                                            : Colors.transparent),
+                                ),
+                                child: Center(
+                                  child: isCorrect == true
+                                      ? (index == correctIndex
+                                            ? const Icon(
+                                                Icons.check_circle,
+                                                color: Colors.green,
+                                                size: 50,
+                                              )
+                                            : null)
+                                      : (index == selectedIndex
+                                            ? const Icon(
+                                                Icons.cancel,
+                                                color: Colors.red,
+                                                size: 50,
+                                              )
+                                            : null),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
-                  ],
+                    ),
+                  ),
                 ),
               );
             },

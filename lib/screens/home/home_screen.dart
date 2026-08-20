@@ -1,20 +1,14 @@
 import 'package:baby_flash_apps/ads/banner_ad.dart';
-import 'package:baby_flash_apps/core/constants/app_colors.dart';
-import 'package:baby_flash_apps/core/constants/category.dart';
-import 'package:baby_flash_apps/core/utils/helper.dart';
 import 'package:baby_flash_apps/core/utils/responsive.dart';
 import 'package:baby_flash_apps/database/db_provider.dart';
-import 'package:baby_flash_apps/router/route_paths.dart';
 import 'package:baby_flash_apps/services/music_services.dart';
 import 'package:baby_flash_apps/widgets/app_background.dart';
 import 'package:baby_flash_apps/widgets/ask_language.dart';
 import 'package:baby_flash_apps/widgets/home_card_basiclist.dart';
 import 'package:baby_flash_apps/widgets/home_card_gridlist.dart';
-import 'package:baby_flash_apps/widgets/home_cards.dart';
 import 'package:baby_flash_apps/widgets/topbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -103,40 +97,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             isTablet
                                 ? HomeCardGridlist(isJapanese: isJapanese)
                                 : HomeCardBasiclist(isJapanese: isJapanese),
-
-                            // ListView.builder(
-                            //   shrinkWrap: true,
-                            //   physics: const NeverScrollableScrollPhysics(),
-                            //   itemCount: homeCardList.length,
-                            //   itemBuilder: (context, index) {
-                            //     final item = homeCardList[index];
-                            //     if (isJapanese && item.category == 'Alphabet') {
-                            //       return const SizedBox.shrink();
-                            //     }
-                            //     return Padding(
-                            //       padding: EdgeInsetsGeometry.only(bottom: 20),
-                            //       child: HomeCards(
-                            //         imagePath: item.imagePath,
-                            //         title: item.title,
-                            //         subText: AppHelpers.getCount(
-                            //           item.category,
-                            //           state.categoryCounts,
-                            //         ),
-                            //         cardBg: item.cardBg,
-                            //         btnBg: item.btnBg ?? AppColors.primaryBtnBg,
-                            //         onPress: () => context.push(
-                            //           state.questionMode == true
-                            //               ? RoutePaths.exercise
-                            //               : RoutePaths.detail,
-                            //           extra: {
-                            //             'category': item.category,
-                            //             'index': index,
-                            //           },
-                            //         ),
-                            //       ),
-                            //     );
-                            //   },
-                            // ),
                           ],
                         ),
                       ),

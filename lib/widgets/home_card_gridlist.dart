@@ -36,7 +36,7 @@ class HomeCardGridlist extends ConsumerWidget {
         crossAxisCount: 2,
         // crossAxisSpacing: 3,
         mainAxisSpacing: 20,
-        childAspectRatio: 1.3,
+        childAspectRatio: 1.25,
       ),
       itemBuilder: (context, index) {
         final item = homeCardList[index];

@@ -61,7 +61,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Dialog(
             backgroundColor: Colors.transparent,
             insetPadding: EdgeInsets.all(
-              ResponsiveUtils.width(context, isTablet ? 15 : 4),
+              ResponsiveUtils.width(context, isTablet ? 5 : 4),
             ),
             child: Container(
               padding: EdgeInsets.symmetric(

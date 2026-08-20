@@ -12,6 +12,10 @@ class ActivityCompleteModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isTablet = ResponsiveUtils.isTablet(context);
+
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (didPop, result) {
@@ -22,10 +26,12 @@ class ActivityCompleteModal extends StatelessWidget {
       },
       child: Dialog(
         backgroundColor: Colors.transparent,
-        insetPadding: EdgeInsets.all(20),
+        // insetPadding: EdgeInsets.all(20),
+        insetPadding: EdgeInsets.all(ResponsiveUtils.width(context, 6)),
         child: Container(
-          height: 300,
-          padding: EdgeInsets.symmetric(vertical: 55, horizontal: 10),
+          height: ResponsiveUtils.height(context, isTablet?isLandscape? 40: 30: 30),
+          width: ResponsiveUtils.width(context, isTablet? isLandscape? 50 : 70: 85),
+          padding: EdgeInsets.symmetric(horizontal: 10),
           decoration: BoxDecoration(
             color: Color(0xfff7cd89),
             borderRadius: BorderRadius.circular(20),
@@ -43,7 +49,7 @@ class ActivityCompleteModal extends StatelessWidget {
                     style: TextStyle(
                       fontSize: ResponsiveUtils.fontSize(
                         context,
-                        isTablet ? 6 : 7.5,
+                        isTablet ? isLandscape? 4 : 6 : 7.5,
                       ),
                       fontFamily: "Fredoka",
                       fontWeight: FontWeight.w700,
@@ -60,7 +66,7 @@ class ActivityCompleteModal extends StatelessWidget {
                     child: Icon(
                       Icons.done_outline_rounded,
                       color: Colors.white60,
-                      size: ResponsiveUtils.width(context, isTablet ? 5 : 6),
+                      size: ResponsiveUtils.width(context, isTablet ? isLandscape? 3.5 : 5 : 6),
                     ),
                   ),
                 ],
@@ -70,14 +76,14 @@ class ActivityCompleteModal extends StatelessWidget {
                 spacing: 5,
                 children: [
                   IconElevatedBtn(
-                    size: ResponsiveUtils.width(context, isTablet ? 18 : 20),
+                    size: ResponsiveUtils.width(context, isTablet ? isLandscape? 11 : 15 : 20),
                     assetPath: 'assets/svgs/home_btn.svg',
                     onPressed: () {
                       context.go(RoutePaths.home);
                     },
                   ),
                   IconElevatedBtn(
-                    size: ResponsiveUtils.width(context, isTablet ? 18 : 24),
+                    size: ResponsiveUtils.width(context, isTablet ?isLandscape? 13 :17 : 24),
                     assetPath: 'assets/svgs/replay_btn.svg',
                     onPressed: () {
                       context.pop(0);
@@ -85,7 +91,7 @@ class ActivityCompleteModal extends StatelessWidget {
                   ),
                   if (currentIndex < (homeCardList.length - 1))
                     IconElevatedBtn(
-                      size: ResponsiveUtils.width(context, isTablet ? 18 : 20),
+                      size: ResponsiveUtils.width(context, isTablet ? isLandscape? 11:15 : 20),
                       assetPath: 'assets/svgs/next_btn.svg',
                       onPressed: () {
                         context.pop();
